@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
+import "../styles/Register.css";
 const Register = ({ setUser }) => {
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
@@ -29,76 +29,81 @@ const Register = ({ setUser }) => {
             // Điều hướng đến trang đăng nhập
             navigate("/login");
         } catch (error) {
+            setError(error?.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại!");
             console.error("Đăng ký thất bại:", error?.response?.data?.message || "Lỗi không xác định!");
         }
     };
 
-
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-center">Đăng ký</h2>
+        <div className="register-container">
+            <div className="register-card">
+                <h2 className="register-title">Đăng ký</h2>
 
-                {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
+                {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
-                    <div className="mb-4">
-                        <label htmlFor="userName" className="block text-gray-700">Tên người dùng</label>
+                    <div className="form-group">
+                        <label htmlFor="userName" className="input-label">Tên người dùng</label>
                         <input
                             type="text"
                             id="userName"
-                            placeholder="Tên người dùng"
-                            className="w-full p-2 border border-gray-300 rounded mt-1"
+                            placeholder="Nhập tên của bạn"
+                            className="input-field"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                             required
                         />
                     </div>
-                    <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700">Email</label>
+
+                    <div className="form-group">
+                        <label htmlFor="email" className="input-label">Email</label>
                         <input
                             type="email"
                             id="email"
-                            placeholder="Email"
-                            className="w-full p-2 border border-gray-300 rounded mt-1"
+                            placeholder="Nhập địa chỉ email"
+                            className="input-field"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
-                    <div className="mb-4">
-                        <label htmlFor="password" className="block text-gray-700">Mật khẩu</label>
+
+                    <div className="form-group">
+                        <label htmlFor="password" className="input-label">Mật khẩu</label>
                         <input
                             type="password"
                             id="password"
-                            placeholder="Mật khẩu"
-                            className="w-full p-2 border border-gray-300 rounded mt-1"
+                            placeholder="Tạo mật khẩu"
+                            className="input-field"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </div>
-                    <div className="mb-6">
-                        <label htmlFor="phoneNumber" className="block text-gray-700">Số điện thoại</label>
+
+                    <div className="form-group">
+                        <label htmlFor="phoneNumber" className="input-label">Số điện thoại</label>
                         <input
                             type="text"
                             id="phoneNumber"
-                            placeholder="Số điện thoại"
-                            className="w-full p-2 border border-gray-300 rounded mt-1"
+                            placeholder="Nhập số điện thoại"
+                            className="input-field"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
                         />
                     </div>
+
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+                        className="register-button"
                     >
                         Đăng ký
                     </button>
                 </form>
-                <div className="mt-4 text-center">
-                    <p className="text-gray-700">
-                        Đã có tài khoản? <Link to="/login" className="text-blue-500 hover:underline">Đăng nhập</Link>
+
+                <div className="login-link-container">
+                    <p className="login-text">
+                        Đã có tài khoản? <Link to="/login" className="login-link">Đăng nhập</Link>
                     </p>
                 </div>
             </div>

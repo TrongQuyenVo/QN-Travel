@@ -57,9 +57,17 @@ exports.login = async (req, res) => {
 // Lấy thông tin người dùng từ token
 exports.getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password');
-        res.json(user);
+        const user = await User.findById(req.user.userId).select("-password");
+        if (!user) return res.status(404).json({ message: "User không tồn tại" });
+
+        res.json({
+            id: user._id,
+            userName: user.userName,
+            email: user.email,
+            role: user.role, // Cập nhật role mới nhất từ database
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Lỗi khi lấy thông tin người dùng', error: error.message });
+        res.status(500).json({ message: "Lỗi khi lấy thông tin người dùng", error });
     }
 };
+

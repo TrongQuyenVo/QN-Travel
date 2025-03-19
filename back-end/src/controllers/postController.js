@@ -37,6 +37,7 @@ exports.getPostById = async (req, res) => {
         }
         res.status(200).json(post);
     } catch (error) {
+        console.error('Lỗi khi lấy chi tiết bài viết:', error);
         res.status(500).json({ error: 'Lỗi khi lấy thông tin bài viết', details: error.message });
     }
 };
@@ -72,23 +73,44 @@ exports.deletePost = async (req, res) => {
 
 exports.addComment = async (req, res) => {
     try {
-        const { userID, content } = req.body;
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ error: 'Bài viết không tồn tại' });
         }
 
         const newComment = {
-            userID,
-            content,
-            approved: false, // Bình luận mới cần được admin duyệt
+            author: req.body.author,
+            content: req.body.content,
+            date: new Date()
         };
 
         post.comments.push(newComment);
         await post.save();
-        res.status(201).json(post);
+
+        res.status(201).json(newComment);
     } catch (error) {
-        res.status(500).json({ error: 'Lỗi khi thêm bình luận', details: error.message });
+        console.error('Lỗi khi thêm bình luận:', error);
+        res.status(500).json({ error: 'Lỗi khi thêm bình luận' });
+    }
+};
+
+exports.updateRating = async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).json({ error: 'Bài viết không tồn tại' });
+        }
+
+        const { rating } = req.body;
+        post.ratingCount += 1;
+        post.rating = ((post.rating * (post.ratingCount - 1)) + rating) / post.ratingCount;
+
+        await post.save();
+
+        res.status(200).json(post);
+    } catch (error) {
+        console.error('Lỗi khi cập nhật đánh giá:', error);
+        res.status(500).json({ error: 'Lỗi khi cập nhật đánh giá' });
     }
 };
 
@@ -113,12 +135,19 @@ exports.approveComment = async (req, res) => {
     }
 };
 
-exports.searchPostsByLocation = async (req, res) => {
+exports.searchPostsByLocationName = async (req, res) => {
     try {
-        const { locationID } = req.query;
-        const posts = await Post.find({ locationID }).populate('locationID').populate('adminID');
+        const { locationName } = req.query;
+        if (!locationName) {
+            return res.status(400).json({ message: 'locationName là bắt buộc' });
+        }
+
+        const locations = await Location.find({ name: new RegExp(locationName, 'i') });
+        const locationIds = locations.map(location => location._id);
+
+        const posts = await Post.find({ locationID: { $in: locationIds } }).populate('locationID').populate('adminID');
         res.status(200).json(posts);
     } catch (error) {
-        res.status(500).json({ error: 'Lỗi khi tìm kiếm bài viết theo địa điểm', details: error.message });
+        res.status(500).json({ message: 'Lỗi khi tìm kiếm bài viết', error });
     }
 };

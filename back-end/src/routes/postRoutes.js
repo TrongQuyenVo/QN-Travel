@@ -6,8 +6,9 @@ const {
     updatePost,
     deletePost,
     addComment,
+    updateRating,
     approveComment,
-    searchPostsByLocation,
+    searchPostsByLocationName,
 } = require('../controllers/postController');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
@@ -19,7 +20,8 @@ router.get('/:id', getPostById);
 router.put('/:id', authMiddleware, adminMiddleware, updatePost);
 router.delete('/:id', authMiddleware, adminMiddleware, deletePost);
 router.post('/:id/comments', authMiddleware, addComment);
+router.put('/:id/rating', authMiddleware, updateRating);
 router.put('/:postId/comments/:commentId/approve', authMiddleware, adminMiddleware, approveComment);
-router.get('/search', searchPostsByLocation); // Route tìm kiếm bài viết theo địa điểm
+router.get('/search', searchPostsByLocationName);
 
 module.exports = router;

@@ -22,10 +22,14 @@ const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const ratingRoutes = require('./routes/ratingRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/ratings', ratingRoutes);
+
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

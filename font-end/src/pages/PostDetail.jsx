@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { StarIcon, CalendarIcon, MessageSquareIcon } from 'lucide-react';
 import '../styles/PostDetail.css';
@@ -16,46 +17,43 @@ const PostDetail = ({ user }) => {
     const [actionType, setActionType] = useState('');
 
     useEffect(() => {
-        // Giả lập dữ liệu bài đăng và bình luận
-        const fetchedPost = {
-            id: 1,
-            title: 'Một ngày ở Hội An',
-            content: 'Khám phá Hội An chỉ trong một ngày...',
-            images: ['path/to/image1.jpg', 'path/to/image2.jpg'],
-            date: '2025-03-01',
-            author: 'Chuyên gia du lịch',
-            rating: 4.5,
-            ratingCount: 10
+        const fetchPost = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/posts/${id}`);
+                const fetchedPost = response.data;
+                setPost(fetchedPost);
+                setComments(fetchedPost.comments);
+                setUserRating(0); // Giả lập người dùng chưa đánh giá
+                setRatingCount(fetchedPost.ratingCount);
+                setTotalRatings(fetchedPost.rating * fetchedPost.ratingCount);
+            } catch (error) {
+                console.error('Lỗi khi lấy chi tiết bài viết:', error);
+            }
         };
-        const fetchedComments = [
-            { id: 1, author: 'Người dùng 1', content: 'Bài viết rất hay!' },
-            { id: 2, author: 'Người dùng 2', content: 'Cảm ơn vì thông tin hữu ích.' }
-        ];
 
-        setPost(fetchedPost);
-        setComments(fetchedComments);
-        setUserRating(0); // Giả lập người dùng chưa đánh giá
-        setRatingCount(fetchedPost.ratingCount);
-        setTotalRatings(fetchedPost.rating * fetchedPost.ratingCount);
+        fetchPost();
     }, [id]);
 
-    const handleAddComment = () => {
+    const handleAddComment = async () => {
         if (!user) {
             setActionType('comment');
             setShowModal(true);
             return;
         }
 
-        const newCommentObj = {
-            id: comments.length + 1,
-            author: user.userName,
-            content: newComment
-        };
-        setComments([...comments, newCommentObj]);
-        setNewComment('');
+        try {
+            const response = await axios.post(`http://localhost:5000/api/posts/${id}/comments`, {
+                author: user.userName,
+                content: newComment
+            });
+            setComments([...comments, response.data]);
+            setNewComment('');
+        } catch (error) {
+            console.error('Lỗi khi thêm bình luận:', error);
+        }
     };
 
-    const handleRating = (newRating) => {
+    const handleRating = async (newRating) => {
         if (!user) {
             setActionType('rating');
             setShowModal(true);
@@ -76,13 +74,21 @@ const PostDetail = ({ user }) => {
 
         const newAverageRating = newTotalRatings / newRatingCount;
 
-        setTotalRatings(newTotalRatings);
-        setRatingCount(newRatingCount);
-        setUserRating(newRating);
-        setPost((prevPost) => ({
-            ...prevPost,
-            rating: newAverageRating
-        }));
+        try {
+            await axios.put(`http://localhost:5000/api/posts/${id}/rating`, {
+                rating: newRating
+            });
+
+            setTotalRatings(newTotalRatings);
+            setRatingCount(newRatingCount);
+            setUserRating(newRating);
+            setPost((prevPost) => ({
+                ...prevPost,
+                rating: newAverageRating
+            }));
+        } catch (error) {
+            console.error('Lỗi khi đánh giá:', error);
+        }
     };
 
     const handleModalClose = () => {

@@ -20,7 +20,8 @@
     "franc-min": "^6.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
-    "openai": "^4.87.3"
+    "openai": "^4.87.3",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
