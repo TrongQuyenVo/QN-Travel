@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
+
 const Login = ({ setUser }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -10,16 +11,19 @@ const Login = ({ setUser }) => {
     const handleLogin = async () => {
         try {
             const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
-            localStorage.setItem("token", res.data.token);
 
-            // Gọi API để lấy thông tin user mới nhất
+            // Lưu token vào localStorage
+            const token = res.data.token; // Lấy token từ response
+            localStorage.setItem("token", token); // Lưu token vào localStorage
+
+            // Lấy thông tin người dùng
             const userRes = await axios.get("http://localhost:5000/api/auth/me", {
-                headers: { Authorization: `Bearer ${res.data.token}` }
+                headers: { Authorization: `Bearer ${token}` } // Gửi token hợp lệ
             });
 
             setUser(userRes.data);
 
-            // Nếu là admin, chuyển đến trang quản lý
+            // Điều hướng dựa trên role
             if (userRes.data.role === "admin") {
                 navigate("/admin");
             } else {
@@ -62,10 +66,7 @@ const Login = ({ setUser }) => {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        className="login-button"
-                    >
+                    <button type="submit" className="login-button">
                         Đăng nhập
                     </button>
                 </form>

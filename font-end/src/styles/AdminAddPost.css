@@ -1,0 +1,94 @@
+.admin-add-post {
+    max-width: 1000px;
+    margin: 100px;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-add-post h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-add-post form {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-add-post label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.admin-add-post input,
+.admin-add-post textarea,
+.admin-add-post select {
+    padding: 0.5rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.admin-add-post input:focus,
+.admin-add-post textarea:focus,
+.admin-add-post select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.admin-add-post textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.admin-add-post button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.admin-add-post button:hover {
+    background-color: #45a049;
+}
+
+/* Error state */
+.admin-add-post input.error,
+.admin-add-post textarea.error,
+.admin-add-post select.error {
+    border-color: #f44336;
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 0.875rem;
+    margin-top: -0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .admin-add-post {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .admin-add-post button {
+        width: 100%;
+    }
+}

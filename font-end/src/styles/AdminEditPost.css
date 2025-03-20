@@ -1,0 +1,127 @@
+.admin-edit-post {
+    max-width: 800px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-edit-post h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+}
+
+.admin-edit-post form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.admin-edit-post label {
+    font-weight: bold;
+    color: #444;
+}
+
+.admin-edit-post input[type="text"],
+.admin-edit-post textarea,
+.admin-edit-post select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.admin-edit-post input[type="text"]:focus,
+.admin-edit-post textarea:focus,
+.admin-edit-post select:focus {
+    border-color: #4caf50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.admin-edit-post textarea {
+    min-height: 180px;
+    resize: vertical;
+}
+
+.admin-edit-post input[type="file"] {
+    padding: 5px;
+    border: none;
+}
+
+.admin-edit-post .current-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px dashed #aaa;
+    border-radius: 6px;
+    background-color: #f4f4f4;
+}
+
+.admin-edit-post .current-image img {
+    max-width: 200px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.admin-edit-post .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.admin-edit-post button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.admin-edit-post button[type="submit"] {
+    background-color: #4caf50;
+    color: white;
+    flex: 1;
+}
+
+.admin-edit-post button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.admin-edit-post .cancel-button {
+    background-color: #f44336;
+    color: white;
+    flex: 1;
+}
+
+.admin-edit-post .cancel-button:hover {
+    background-color: #d32f2f;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .admin-edit-post {
+        width: 90%;
+        margin: 50px auto;
+    }
+
+    .admin-edit-post .button-group {
+        flex-direction: column;
+    }
+}

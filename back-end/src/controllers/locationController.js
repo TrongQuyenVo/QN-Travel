@@ -22,18 +22,6 @@ exports.getLocations = async (req, res) => {
     }
 };
 
-exports.getLocationById = async (req, res) => {
-    try {
-        const location = await Location.findById(req.params.id);
-        if (!location) {
-            return res.status(404).json({ error: 'Địa điểm không tồn tại' });
-        }
-        res.status(200).json(location);
-    } catch (error) {
-        res.status(500).json({ error: 'Lỗi khi lấy thông tin địa điểm', details: error.message });
-    }
-};
-
 exports.updateLocation = async (req, res) => {
     try {
         const { name } = req.body;

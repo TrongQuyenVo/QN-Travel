@@ -57,7 +57,7 @@ exports.login = async (req, res) => {
 // Lấy thông tin người dùng từ token
 exports.getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId).select("-password");
+        const user = await User.findById(req.user.id).select("-password");
         if (!user) return res.status(404).json({ message: "User không tồn tại" });
 
         res.json({
@@ -68,6 +68,16 @@ exports.getMe = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: "Lỗi khi lấy thông tin người dùng", error });
+    }
+};
+
+// API lấy số lượng người dùng (không tính admin)
+exports.getUserCount = async (req, res) => {
+    try {
+        const userCount = await User.countDocuments({ role: { $ne: "admin" } }); // Lọc bỏ admin
+        res.json({ count: userCount });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi khi lấy số lượng người dùng", error });
     }
 };
 

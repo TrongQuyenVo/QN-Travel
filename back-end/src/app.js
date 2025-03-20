@@ -28,7 +28,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/ratings', ratingRoutes);
-
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;

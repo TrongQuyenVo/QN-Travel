@@ -11,8 +11,14 @@ import PostDetail from "./pages/PostDetail";
 import ChatBox from "./components/ChatBox";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminHeader from "./components/AdminHeader";
+import Sidebar from "./components/Sidebar";
+import AdminPosts from "./pages/AdminPosts";
+import AdminAddPost from "./pages/AdminAddPost";
+import AdminEditPost from "./pages/AdminEditPost";
+
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,48 +30,102 @@ function App() {
       }).catch(err => {
         console.error("Lỗi khi lấy thông tin người dùng:", err);
         localStorage.removeItem("token");
+        setUser(null);
+      }).finally(() => {
+        setLoading(false);
       });
+    } else {
+      setLoading(false);
     }
   }, []);
 
   return (
     <Router>
-      <MainLayout user={user} setUser={setUser} />
+      <MainLayout user={user} setUser={setUser} loading={loading} />
     </Router>
   );
 }
 
-function MainLayout({ user, setUser }) {
+function MainLayout({ user, setUser, loading }) {
   const location = useLocation();
+  const [activeTab, setActiveTab] = useState("dashboard");
 
-  // Xác định các trang không cần Header & Footer
   const noHeaderFooter = ["/login", "/register"].includes(location.pathname);
-  const isAdminPage = location.pathname.startsWith("/admin"); // Kiểm tra nếu là trang admin
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hiển thị Navbar nếu không phải trang admin hoặc login/register */}
-      {!noHeaderFooter && !isAdminPage && (
+      {/* Header: Hiển thị AdminHeader nếu là trang admin, Navbar nếu không */}
+      {!noHeaderFooter && (
         <header className="fixed top-0 left-0 right-0 z-50">
-          <Navbar user={user} setUser={setUser} />
+          {isAdminPage ? <AdminHeader user={user} setUser={setUser} /> : <Navbar user={user} setUser={setUser} />}
         </header>
       )}
 
-      {/* Admin Header riêng */}
-      {isAdminPage && <AdminHeader user={user} setUser={setUser} />}
+      <div className="flex flex-grow">
+        {/* Sidebar chỉ hiển thị ở trang admin */}
+        {isAdminPage && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />}
 
-      <main className={`flex-grow ${!noHeaderFooter && !isAdminPage ? 'mt-16' : ''}`}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/posts/:id" element={<PostDetail user={user} />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/register" element={<Register setUser={setUser} />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Routes>
-      </main>
+        <main className={`flex-grow ${isAdminPage || noHeaderFooter ? '' : 'mt-16'}`}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/posts/:id" element={<PostDetail user={user} />} />
+            <Route path="/login" element={<Login setUser={setUser} />} />
+            <Route path="/register" element={<Register setUser={setUser} />} />
+            <Route
+              path="/admin"
+              element={
+                loading ? (
+                  <div>Loading...</div>
+                ) : user?.role === "admin" ? (
+                  <AdminDashboard />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/posts"
+              element={
+                loading ? (
+                  <div>Loading...</div>
+                ) : user?.role === "admin" ? (
+                  <AdminPosts />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/posts/new"
+              element={
+                loading ? (
+                  <div>Loading...</div>
+                ) : user?.role === "admin" ? (
+                  <AdminAddPost />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/posts/edit/:id"
+              element={
+                loading ? (
+                  <div>Loading...</div>
+                ) : user?.role === "admin" ? (
+                  <AdminEditPost />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+          </Routes>
+        </main>
+      </div>
 
-      {/* Hiển thị Footer và ChatBox nếu không phải trang admin hoặc login/register */}
+      {/* Footer & ChatBox chỉ hiển thị khi không ở trang admin hoặc login/register */}
       {!noHeaderFooter && !isAdminPage && <Footer />}
       {!noHeaderFooter && !isAdminPage && <ChatBox />}
     </div>
