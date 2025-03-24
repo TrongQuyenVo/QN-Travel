@@ -1,0 +1,207 @@
+/* AdminLocations.css */
+.locations-admin {
+    max-width: 1000px;
+    margin: 100px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.locations-header {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 28px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+/* Form styles */
+.location-add-form,
+.location-edit-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.location-edit-form {
+    border-left: 4px solid #4a90e2;
+}
+
+.location-add-form input[type="text"],
+.location-edit-form input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.location-add-form input[type="file"],
+.location-edit-form input[type="file"] {
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.location-add-form label,
+.location-edit-form label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.location-add-form input[type="checkbox"],
+.location-edit-form input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.location-add-form button,
+.location-edit-form button.update-locations {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.location-add-form button:hover,
+.location-edit-form button.update-locations:hover {
+    background-color: #357abD;
+}
+
+/* Edit form action buttons */
+.edit-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Location list styles */
+.locations-list-title {
+    margin: 30px 0 15px;
+    font-size: 22px;
+    color: #444;
+}
+
+.locations-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.location-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #121212;
+    transition: background-color 0.2s;
+}
+
+.location-item:hover {
+    background-color: #f5f5f5;
+}
+
+.location-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.location-image-preview {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.location-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.location-edit-btn,
+.location-delete-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.location-edit-btn {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.location-delete-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.location-edit-btn:hover {
+    background-color: #357abD;
+}
+
+.location-delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .location-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .location-image {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+
+    .location-actions {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .location-edit-btn,
+    .location-delete-btn {
+        flex: 1;
+    }
+
+    .edit-actions {
+        flex-direction: column;
+    }
+
+    .cancel-btn {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}

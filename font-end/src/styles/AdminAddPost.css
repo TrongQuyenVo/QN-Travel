@@ -1,94 +1,210 @@
-.admin-add-post {
-    max-width: 1000px;
-    margin: 100px;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* Tổng thể trang */
+.admin-add-post-add {
+    max-width: 1200px;
+    margin: 100px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.admin-add-post h1 {
-    font-size: 1.8rem;
+.admin-add-post-add h1 {
+    text-align: center;
     color: #333;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #eee;
+    font-size: 2rem;
+    margin-bottom: 20px;
 }
 
-.admin-add-post form {
-    display: flex;
-    flex-direction: column;
+/* Form */
+.form-add {
+    display: grid;
+    gap: 20px;
 }
 
-.admin-add-post label {
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: #555;
-}
-
-.admin-add-post input,
-.admin-add-post textarea,
-.admin-add-post select {
-    padding: 0.5rem;
-    margin-bottom: 1.25rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+/* Các input và textarea */
+.title-input-add,
+.content-textarea-add,
+.cuisine-input-add,
+.price-input-add,
+.event-date-input-add,
+.event-end-date-input-add {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
     font-size: 1rem;
-    font-family: inherit;
+    color: #333;
 }
 
-.admin-add-post input:focus,
-.admin-add-post textarea:focus,
-.admin-add-post select:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+.location-select-add,
+.image-input-add,
+.category-select-add {
+    width: 30%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
 }
 
-.admin-add-post textarea {
-    min-height: 100px;
+.image-input-add {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.content-textarea-add {
     resize: vertical;
+    min-height: 150px;
 }
 
-.admin-add-post button {
+/* Nút submit */
+.submit-button-add,
+.cancel-button-add {
+    padding: 12px 18px;
     background-color: #4CAF50;
     color: white;
-    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 1rem;
-    font-weight: 500;
     cursor: pointer;
-    align-self: flex-start;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s ease;
 }
 
-.admin-add-post button:hover {
+.submit-button-add:hover,
+.cancel-button-add:hover {
     background-color: #45a049;
 }
 
-/* Error state */
-.admin-add-post input.error,
-.admin-add-post textarea.error,
-.admin-add-post select.error {
-    border-color: #f44336;
+.cancel-button-add {
+    background-color: #f44336;
 }
 
-.error-message {
-    color: #f44336;
-    font-size: 0.875rem;
-    margin-top: -0.75rem;
-    margin-bottom: 1rem;
+.cancel-button-add:hover {
+    background-color: #d32f2f;
 }
 
-/* Responsive styles */
+/* Xem trước ảnh */
+.image-preview-container-add {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.image-preview-add {
+    position: relative;
+    width: 250px;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+
+.image-preview-img-add {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.delete-image-add {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.delete-image-add:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Style cho các label */
+.label-title-add,
+.label-content-add,
+.label-location-add,
+.label-images-add,
+.label-category-add,
+.label-cuisine-add,
+.label-price-add,
+.label-event-date-add,
+.label-event-end-date-add {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Hiệu ứng cho các trường input khi focus */
+.title-input-add:focus,
+.content-textarea-add:focus,
+.location-select-add:focus,
+.category-select-add:focus,
+.cuisine-input-add:focus,
+.price-input-add:focus,
+.event-date-input-add:focus,
+.event-end-date-input-add:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Style cho nút hủy và submit */
+.button-container-add {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Style cho trường category */
+.category-select-add {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+/* Container cho các trường theo danh mục */
+.category-fields {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+    margin-bottom: 0;
+    display: grid;
+    gap: 15px;
+}
+
+/* Kiểu dáng cho các danh mục khác nhau */
+.category-fields.food {
+    border-left-color: #FF9800;
+}
+
+.category-fields.event {
+    border-left-color: #2196F3;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .admin-add-post {
-        padding: 1.5rem;
-        margin: 0 1rem;
+    .admin-add-post-add {
+        margin: 50px auto;
+        padding: 15px;
     }
 
-    .admin-add-post button {
+    .location-select-add,
+    .image-input-add,
+    .category-select-add {
+        width: 100%;
+    }
+
+    .button-container-add {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .submit-button-add,
+    .cancel-button-add {
+        width: 100%;
+    }
+
+    .image-preview-add {
         width: 100%;
     }
 }

@@ -30,6 +30,7 @@ app.use('/api/locations', locationRoutes);
 app.use('/api/ratings', ratingRoutes);
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/Locations', express.static('Locations'));
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;

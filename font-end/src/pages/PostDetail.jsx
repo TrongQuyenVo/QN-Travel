@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { StarIcon, CalendarIcon, MessageSquareIcon } from 'lucide-react';
+import { StarIcon, CalendarIcon, MessageSquareIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import '../styles/PostDetail.css';
 
 const PostDetail = ({ user }) => {
@@ -15,6 +15,7 @@ const PostDetail = ({ user }) => {
     const [ratingCount, setRatingCount] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [actionType, setActionType] = useState('');
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -22,8 +23,8 @@ const PostDetail = ({ user }) => {
                 const response = await axios.get(`http://localhost:5000/api/posts/${id}`);
                 const fetchedPost = response.data;
                 setPost(fetchedPost);
-                setComments(fetchedPost.comments);
-                setUserRating(0); // Giả lập người dùng chưa đánh giá
+                setComments(fetchedPost.comments || []);
+                setUserRating(0);
                 setRatingCount(fetchedPost.ratingCount);
                 setTotalRatings(fetchedPost.rating * fetchedPost.ratingCount);
             } catch (error) {
@@ -41,10 +42,12 @@ const PostDetail = ({ user }) => {
             return;
         }
 
+        if (!newComment.trim()) return;
+
         try {
             const response = await axios.post(`http://localhost:5000/api/posts/${id}/comments`, {
                 author: user.userName,
-                content: newComment
+                content: newComment.trim()
             });
             setComments([...comments, response.data]);
             setNewComment('');
@@ -53,6 +56,14 @@ const PostDetail = ({ user }) => {
         }
     };
 
+    const formatContent = (text) => {
+        return text.split('\n').map((line, index) => (
+            <React.Fragment key={index}>{line}<br /></React.Fragment>
+        ));
+    };
+    const handleGoBack = () => {
+        navigate(-1); // Quay lại trang trước đó
+    };
     const handleRating = async (newRating) => {
         if (!user) {
             setActionType('rating');
@@ -64,11 +75,11 @@ const PostDetail = ({ user }) => {
         let newRatingCount = ratingCount;
 
         if (userRating === 0) {
-            // Người dùng chưa đánh giá
+            // Người dùng đánh giá lần đầu -> Cộng vào tổng điểm và tăng số lượt đánh giá
             newTotalRatings += newRating;
             newRatingCount += 1;
         } else {
-            // Người dùng đã đánh giá, cập nhật đánh giá
+            // Người dùng chỉ sửa đánh giá -> Chỉ cập nhật tổng điểm, không tăng ratingCount
             newTotalRatings = newTotalRatings - userRating + newRating;
         }
 
@@ -91,70 +102,133 @@ const PostDetail = ({ user }) => {
         }
     };
 
-    const handleModalClose = () => {
-        setShowModal(false);
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleAddComment();
+        }
     };
 
+    const handleModalClose = () => setShowModal(false);
     const handleModalContinue = () => {
         setShowModal(false);
         navigate('/login');
     };
 
+    // Xử lý điều hướng gallery
+    const handlePrevImage = () => {
+        if (post?.images?.length) {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === 0 ? post.images.length - 1 : prevIndex - 1
+            );
+        }
+    };
+
+    const handleNextImage = () => {
+        if (post?.images?.length) {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === post.images.length - 1 ? 0 : prevIndex + 1
+            );
+        }
+    };
+
+    const handleThumbnailClick = (index) => {
+        setCurrentImageIndex(index);
+    };
+
     if (!post) return <div>Đang tải...</div>;
 
     return (
-        <div className="post-detail">
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Thông báo</h2>
-                        <p>Bạn cần đăng nhập để {actionType === 'comment' ? 'bình luận' : 'đánh giá'}.</p>
-                        <div className="modal-actions">
-                            <button onClick={handleModalClose}>Không</button>
-                            <button onClick={handleModalContinue}>Tiếp tục</button>
+        <div>
+            <div className="back-button" onClick={handleGoBack}>
+                <ChevronLeftIcon size={24} />
+            </div>
+            <div className="post-detail">
+                {showModal && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2>Thông báo</h2>
+                            <p>Bạn cần đăng nhập để {actionType === 'comment' ? 'bình luận' : 'đánh giá'}.</p>
+                            <div className="modal-actions">
+                                <button onClick={handleModalClose}>Không</button>
+                                <button onClick={handleModalContinue}>Tiếp tục</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-            <div className="post-images">
-                {post.images.map((image, index) => (
-                    <img key={index} src={image} alt={`Hình ảnh ${index + 1}`} />
-                ))}
-            </div>
-            <h1>{post.title}</h1>
-            <div className="post-meta">
-                <span><CalendarIcon size={16} /> {new Date(post.date).toLocaleDateString()}</span>
-                <span><MessageSquareIcon size={16} /> {comments.length} bình luận</span>
-                <span><StarIcon size={16} /> {post.rating.toFixed(1)} ({ratingCount} đánh giá)</span>
-            </div>
-            <p>{post.content}</p>
-            <h2>Đánh giá</h2>
-            <div className="rating">
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <StarIcon
-                        key={star}
-                        size={24}
-                        className={star <= userRating ? 'filled' : ''}
-                        onClick={() => handleRating(star)}
-                    />
-                ))}
-            </div>
-            <h2>Bình luận</h2>
-            <div className="comments">
-                {comments.map(comment => (
-                    <div key={comment.id} className="comment">
-                        <strong>{comment.author}</strong>
-                        <p>{comment.content}</p>
+                )}
+
+                {post.images && post.images.length > 0 && (
+                    <div className="post-images">
+                        <div className="main-image">
+                            {post.images.map((image, index) => (
+                                <img
+                                    key={index}
+                                    src={image}
+                                    alt={`Hình ảnh ${index + 1}`}
+                                    className={index === currentImageIndex ? 'active' : ''}
+                                />
+                            ))}
+                            <div className="arrow-nav arrow-prev" onClick={handlePrevImage}>
+                                <ChevronLeftIcon />
+                            </div>
+                            <div className="arrow-nav arrow-next" onClick={handleNextImage}>
+                                <ChevronRightIcon />
+                            </div>
+                        </div>
+
+                        <div className="thumbnails">
+                            {post.images.map((image, index) => (
+                                <div
+                                    key={index}
+                                    className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                                    onClick={() => handleThumbnailClick(index)}
+                                >
+                                    <img src={image} alt={`Thumbnail ${index + 1}`} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                ))}
-            </div>
-            <div className="add-comment">
-                <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Thêm bình luận..."
-                />
-                <button onClick={handleAddComment}>Gửi</button>
+                )}
+
+                <h1>{post.title}</h1>
+                <div className="post-meta">
+                    <span><CalendarIcon size={16} /> {new Date(post.createdAt).toLocaleDateString()}</span>
+                    <span><MessageSquareIcon size={16} /> {comments.length} bình luận</span>
+                    <span><StarIcon size={16} /> {post.rating.toFixed(1)} ({ratingCount} đánh giá)</span>
+                </div>
+                <p>{formatContent(post.content)}</p>
+
+                <h2>Đánh giá</h2>
+                <div className="rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <StarIcon
+                            key={star}
+                            size={24}
+                            className={star <= userRating ? 'filled' : ''}
+                            onClick={() => handleRating(star)}
+                        />
+                    ))}
+                </div>
+
+                <h2>Bình luận</h2>
+                <div className="comments">
+                    {comments.length > 0 ? comments.map(comment => (
+                        <div key={comment.id} className="comment">
+                            <strong>{comment.author}</strong>
+                            <p>{comment.content}</p>
+                        </div>
+                    )) : <p>Chưa có bình luận nào.</p>}
+                </div>
+
+                <div className="add-comment">
+                    <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Thêm bình luận..."
+                        onKeyDown={handleKeyDown}
+                    />
+                    <button onClick={handleAddComment}>Gửi</button>
+                </div>
             </div>
         </div>
     );

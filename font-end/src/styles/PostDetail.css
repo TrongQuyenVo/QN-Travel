@@ -1,116 +1,289 @@
+/* PostDetail.css */
+
 .post-detail {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
 }
 
+.back-button {
+    align-items: center;
+    margin: 20px 0 0 20px;
+    cursor: pointer;
+    width: fit-content;
+    border: 1px solid;
+    border-radius: 15px;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
+/* Phần tiêu đề */
+.post-detail h1 {
+    font-size: 2.5rem;
+    color: #0d5e73;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Gallery container */
 .post-images {
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Ảnh lớn chính */
+.main-image {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    transition: opacity 0.3s ease;
+}
+
+.main-image img.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Nút điều hướng */
+.arrow-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.arrow-nav:hover {
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.arrow-prev {
+    left: 15px;
+}
+
+.arrow-next {
+    right: 15px;
+}
+
+.arrow-nav svg {
+    width: 24px;
+    height: 24px;
+    color: #0d5e73;
+}
+
+/* Thumbnails gallery */
+.thumbnails {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #0d5e73 #f0f0f0;
 }
 
-.post-images img {
-    width: 100%;
-    height: auto;
+.thumbnails::-webkit-scrollbar {
+    height: 6px;
+}
+
+.thumbnails::-webkit-scrollbar-track {
+    background: #f0f0f0;
     border-radius: 10px;
 }
 
-.post-detail h1 {
-    font-size: 2rem;
-    margin: 20px 0;
+.thumbnails::-webkit-scrollbar-thumb {
+    background-color: #0d5e73;
+    border-radius: 10px;
 }
 
+.thumbnail {
+    flex: 0 0 120px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail:hover img {
+    transform: scale(1.05);
+}
+
+.thumbnail.active {
+    border: 3px solid #0d5e73;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Thông tin meta */
 .post-meta {
     display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-    gap: 20px;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    color: #666;
+    font-size: 0.9rem;
 }
 
 .post-meta span {
     display: flex;
     align-items: center;
-    color: #555;
+    gap: 0.5rem;
 }
 
-.post-meta span svg {
-    margin-right: 5px;
+/* Nội dung bài viết */
+.post-detail>p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    color: #444;
+}
+
+/* Đánh giá */
+.post-detail h2 {
+    font-size: 1.5rem;
+    color: #0d5e73;
+    margin: 2rem 0 1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.post-detail h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #0d5e73, #42b883);
+    border-radius: 2px;
 }
 
 .rating {
     display: flex;
-    gap: 5px;
-    margin-bottom: 20px;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
 }
 
 .rating svg {
     cursor: pointer;
-    color: #ddd;
+    color: #ccc;
+    transition: color 0.2s ease;
 }
 
+.rating svg:hover,
 .rating svg.filled {
-    color: #f5c518;
+    color: #ffc107;
 }
 
+/* Phần bình luận */
 .comments {
-    margin-top: 20px;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
 }
 
 .comment {
-    margin-bottom: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border-left: 4px solid #0d5e73;
 }
 
 .comment strong {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
+    color: #0d5e73;
 }
 
+.comment p {
+    margin: 0;
+    color: #555;
+}
+
+/* Thêm bình luận */
 .add-comment {
-    margin-top: 20px;
     display: flex;
-    align-items: center;
-    /* Căn chỉnh các phần tử theo chiều dọc */
-    gap: 10px;
-    /* Khoảng cách giữa ô nhập liệu và nút gửi */
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .add-comment textarea {
-    flex: 1;
-    /* Để ô nhập liệu chiếm toàn bộ không gian còn lại */
-    padding: 10px;
+    width: 100%;
+    padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 0;
-    /* Loại bỏ khoảng cách dưới */
+    border-radius: 8px;
+    min-height: 100px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.add-comment textarea:focus {
+    outline: none;
+    border-color: #0d5e73;
+    box-shadow: 0 0 0 2px rgba(13, 94, 115, 0.2);
 }
 
 .add-comment button {
-    padding: 10px 20px;
-    background: #007bff;
+    align-self: flex-end;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(90deg, #0d5e73, #42b883);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    font-weight: 600;
     cursor: pointer;
-    height: 100%;
-    /* Đảm bảo nút gửi có chiều cao bằng với ô nhập liệu */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .add-comment button:hover {
-    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Modal styles */
+/* Modal đăng nhập */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -118,35 +291,101 @@
 }
 
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #0d5e73;
 }
 
 .modal-actions {
-    margin-top: 20px;
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .modal-actions button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+    padding: 0.6rem 1.5rem;
+    border-radius: 4px;
     cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .modal-actions button:first-child {
-    background: #ccc;
+    background-color: #f3f4f6;
+    color: #333;
+    border: 1px solid #ddd;
 }
 
 .modal-actions button:last-child {
-    background: #007bff;
+    background-color: #0d5e73;
     color: white;
+    border: none;
 }
 
-.modal-actions button:last-child:hover {
-    background: #0056b3;
+.modal-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .post-detail {
+        padding: 1.5rem;
+    }
+
+    .post-detail h1 {
+        font-size: 1.8rem;
+    }
+
+    .main-image {
+        height: 300px;
+    }
+
+    .thumbnail {
+        flex: 0 0 100px;
+        height: 70px;
+    }
+
+    .post-meta {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-detail {
+        padding: 1rem;
+    }
+
+    .post-detail h1 {
+        font-size: 1.5rem;
+    }
+
+    .main-image {
+        height: 200px;
+    }
+
+    .thumbnail {
+        flex: 0 0 80px;
+        height: 60px;
+    }
+
+    .arrow-nav {
+        width: 30px;
+        height: 30px;
+    }
 }

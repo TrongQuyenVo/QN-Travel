@@ -1,4 +1,5 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";  // Add this line
+import { useNavigate } from "react-router-dom";
 import {
     Users, FileText, MessageSquare,
     Settings, Home, Map, Award,
@@ -9,15 +10,28 @@ import "../styles/Sidebar.css";
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const navigate = useNavigate();
 
-    // Cập nhật activeTab dựa trên đường dẫn hiện tại
+    // Hàm để cập nhật tab hiện tại và lưu vào localStorage
     const updateActiveTab = (tab) => {
         setActiveTab(tab);
+        localStorage.setItem("activeTab", tab); // Lưu tab vào localStorage
     };
 
+    // Hàm đăng xuất
     const handleLogout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("activeTab"); // Xóa activeTab khi đăng xuất
         navigate("/login");
     };
+
+    // Khi component được load lại, lấy trạng thái activeTab từ localStorage
+    React.useEffect(() => {
+        const storedTab = localStorage.getItem("activeTab");
+        if (storedTab) {
+            setActiveTab(storedTab);
+        } else {
+            setActiveTab("dashboard"); // Nếu không có activeTab trong localStorage, mặc định là "dashboard"
+        }
+    }, [setActiveTab]);
 
     return (
         <div className="admin-sidebar">

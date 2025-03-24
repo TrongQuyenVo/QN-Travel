@@ -9,19 +9,24 @@ const {
     updateRating,
     approveComment,
     searchPostsByLocationName,
-    uploadImage,
+    uploadImages,
+    getPostsByCategory,
 } = require('../controllers/postController');
 
 const router = express.Router();
 
-router.post('/', uploadImage, createPost);
+// Các route hiện có
+router.post('/', uploadImages, createPost);
 router.get('/', getPosts);
 router.get('/:id', getPostById);
-router.put('/:id', uploadImage, updatePost);
+router.put('/:id', uploadImages, updatePost);
 router.delete('/:id', deletePost);
 router.post('/:id/comments', addComment);
 router.put('/:id/rating', updateRating);
 router.put('/:postId/comments/:commentId/approve', approveComment);
-router.get('/search', searchPostsByLocationName);
+router.get('/search/location', searchPostsByLocationName);
+
+// Các route mới cho danh mục, ẩm thực và sự kiện
+router.get('/category/:category', getPostsByCategory);
 
 module.exports = router;

@@ -9,9 +9,17 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    image: {
+    category: {
         type: String,
+        enum: ['general', 'food', 'event', 'story'],
+        default: 'general',
+        required: true,
     },
+    images: [
+        {
+            type: String, // Lưu danh sách các URL hoặc đường dẫn ảnh
+        },
+    ],
     locationID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location',

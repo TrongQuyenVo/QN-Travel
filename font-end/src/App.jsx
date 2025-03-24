@@ -15,6 +15,7 @@ import Sidebar from "./components/Sidebar";
 import AdminPosts from "./pages/AdminPosts";
 import AdminAddPost from "./pages/AdminAddPost";
 import AdminEditPost from "./pages/AdminEditPost";
+import AdminLocations from "./pages/AdminLocations";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -48,7 +49,7 @@ function App() {
 
 function MainLayout({ user, setUser, loading }) {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("posts"); // Mặc định là "posts" thay vì "dashboard"
 
   const noHeaderFooter = ["/login", "/register"].includes(location.pathname);
   const isAdminPage = location.pathname.startsWith("/admin");
@@ -80,6 +81,18 @@ function MainLayout({ user, setUser, loading }) {
                   <div>Loading...</div>
                 ) : user?.role === "admin" ? (
                   <AdminDashboard />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+            <Route
+              path="/admin/attractions"
+              element={
+                loading ? (
+                  <div>Loading...</div>
+                ) : user?.role === "admin" ? (
+                  <AdminLocations />
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -131,5 +144,6 @@ function MainLayout({ user, setUser, loading }) {
     </div>
   );
 }
+
 
 export default App;
