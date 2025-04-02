@@ -209,6 +209,10 @@ exports.deletePost = async (req, res) => {
     }
 };
 
+// const mongoose = require('mongoose');
+// const Post = require('../models/Post');
+// const Rating = require('../models/Rating');
+
 exports.addComment = async (req, res) => {
     try {
         console.log('Processing comment request for post ID:', req.params.id);
