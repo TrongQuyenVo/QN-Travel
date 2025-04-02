@@ -11,11 +11,17 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
+// Thêm middleware logging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Request Body:', JSON.stringify(req.body, null, 2));
+  next();
+});
+
 // Route mẫu
 app.get('/', (req, res) => {
     res.send('Welcome to Quang Nam Tourism API');
 });
-
 
 // Định nghĩa các tuyến đường
 const authRoutes = require('./routes/authRoutes');
@@ -31,6 +37,16 @@ app.use('/api/ratings', ratingRoutes);
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/Locations', express.static('Locations'));
+
+// Thêm middleware xử lý lỗi
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
