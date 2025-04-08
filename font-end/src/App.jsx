@@ -67,7 +67,7 @@ function MainLayout({ user, setUser, loading }) {
         {/* Sidebar chỉ hiển thị ở trang admin */}
         {isAdminPage && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />}
 
-        <main className={`flex-grow ${isAdminPage || noHeaderFooter ? '' : 'mt-16'}`}>
+        <main className={`flex-grow ${isAdminPage || noHeaderFooter ? '' : 'mt-16 pb-8'}`}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
@@ -139,7 +139,11 @@ function MainLayout({ user, setUser, loading }) {
       </div>
 
       {/* Footer & ChatBox chỉ hiển thị khi không ở trang admin hoặc login/register */}
-      {!noHeaderFooter && !isAdminPage && <Footer />}
+      {!noHeaderFooter && !isAdminPage && (
+        <footer className="mt-auto">
+          <Footer />
+        </footer>
+      )}
       {!noHeaderFooter && !isAdminPage && <ChatBox />}
     </div>
   );
