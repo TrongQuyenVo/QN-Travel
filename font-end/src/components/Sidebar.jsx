@@ -10,26 +10,24 @@ import "../styles/Sidebar.css";
 const Sidebar = ({ activeTab, setActiveTab }) => {
     const navigate = useNavigate();
 
-    // Hàm để cập nhật tab hiện tại và lưu vào localStorage
     const updateActiveTab = (tab) => {
         setActiveTab(tab);
-        localStorage.setItem("activeTab", tab); // Lưu tab vào localStorage
+        localStorage.setItem("activeTab", tab);
     };
 
     // Hàm đăng xuất
     const handleLogout = () => {
         localStorage.removeItem("token");
-        localStorage.removeItem("activeTab"); // Xóa activeTab khi đăng xuất
+        localStorage.removeItem("activeTab");
         navigate("/login");
     };
 
-    // Khi component được load lại, lấy trạng thái activeTab từ localStorage
     React.useEffect(() => {
         const storedTab = localStorage.getItem("activeTab");
         if (storedTab) {
             setActiveTab(storedTab);
         } else {
-            setActiveTab("dashboard"); // Nếu không có activeTab trong localStorage, mặc định là "dashboard"
+            setActiveTab("dashboard");
         }
     }, [setActiveTab]);
 
@@ -91,27 +89,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <span>Địa điểm du lịch</span>
                 </button>
 
-                <button
-                    className={`nav-item ${activeTab === "media" ? "active" : ""}`}
-                    onClick={() => {
-                        updateActiveTab("media");
-                        navigate("/admin/media");
-                    }}
-                >
-                    <Image size={20} />
-                    <span>Quản lý media</span>
-                </button>
-
-                <button
-                    className={`nav-item ${activeTab === "events" ? "active" : ""}`}
-                    onClick={() => {
-                        updateActiveTab("events");
-                        navigate("/admin/events");
-                    }}
-                >
-                    <Award size={20} />
-                    <span>Sự kiện & lễ hội</span>
-                </button>
 
                 <button
                     className={`nav-item ${activeTab === "reviews" ? "active" : ""}`}
@@ -124,16 +101,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <span>Đánh giá & xếp hạng</span>
                 </button>
 
-                <button
-                    className={`nav-item ${activeTab === "settings" ? "active" : ""}`}
-                    onClick={() => {
-                        updateActiveTab("settings");
-                        navigate("/admin/settings");
-                    }}
-                >
-                    <Settings size={20} />
-                    <span>Cài đặt hệ thống</span>
-                </button>
+
             </nav>
 
             <div className="sidebar-footer">

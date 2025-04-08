@@ -126,7 +126,7 @@ const Homepage = () => {
                     <h1>Khám phá Quảng Nam</h1>
                     <p>Trải nghiệm văn hóa và thiên nhiên</p>
                     <form onSubmit={handleSearch} className="search">
-                        <input
+                        <input className="search-input"
                             type="text"
                             placeholder="Tìm kiếm điểm đến..."
                             value={searchQuery}

@@ -16,6 +16,7 @@ const PostDetail = ({ user }) => {
     const [showModal, setShowModal] = useState(false);
     const [actionType, setActionType] = useState('');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -42,17 +43,29 @@ const PostDetail = ({ user }) => {
             return;
         }
 
-        if (!newComment.trim()) return;
+        if (!newComment.trim() || isSubmitting) return;
+
+        setIsSubmitting(true);
 
         try {
             const response = await axios.post(`http://localhost:5000/api/posts/${id}/comments`, {
                 author: user.userName,
                 content: newComment.trim()
             });
-            setComments([...comments, response.data]);
+
+            console.log('Response from server:', response.data); // Thêm dòng này để debug
+
+            const newCommentFromServer = response.data;
+
+            setComments(prevComments => {
+                console.log('Previous comments:', prevComments); // Thêm dòng này để debug
+                return [...prevComments, newCommentFromServer];
+            });
             setNewComment('');
         } catch (error) {
-            console.error('Lỗi khi thêm bình luận:', error);
+            console.error('Lỗi khi thêm bình luận:', error.response ? error.response.data : error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -61,9 +74,11 @@ const PostDetail = ({ user }) => {
             <React.Fragment key={index}>{line}<br /></React.Fragment>
         ));
     };
+
     const handleGoBack = () => {
         navigate(-1); // Quay lại trang trước đó
     };
+
     const handleRating = async (newRating) => {
         if (!user) {
             setActionType('rating');
@@ -138,6 +153,15 @@ const PostDetail = ({ user }) => {
 
     if (!post) return <div>Đang tải...</div>;
 
+    // Generate a unique key for each comment
+    const getCommentKey = (comment, index) => {
+        // Try to use any available ID from the comment
+        if (comment.id) return `comment-${comment.id}`;
+        if (comment._id) return `comment-${comment._id}`;
+        // If no ID is available, use the index and some content for uniqueness
+        return `comment-${index}-${comment.author && comment.author.substring(0, 8)}-${Date.now()}`;
+    };
+
     return (
         <div>
             <div className="back-button" onClick={handleGoBack}>
@@ -162,7 +186,7 @@ const PostDetail = ({ user }) => {
                         <div className="main-image">
                             {post.images.map((image, index) => (
                                 <img
-                                    key={index}
+                                    key={`main-img-${index}`}
                                     src={image}
                                     alt={`Hình ảnh ${index + 1}`}
                                     className={index === currentImageIndex ? 'active' : ''}
@@ -179,7 +203,7 @@ const PostDetail = ({ user }) => {
                         <div className="thumbnails">
                             {post.images.map((image, index) => (
                                 <div
-                                    key={index}
+                                    key={`thumb-${index}`}
                                     className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
                                     onClick={() => handleThumbnailClick(index)}
                                 >
@@ -202,7 +226,7 @@ const PostDetail = ({ user }) => {
                 <div className="rating">
                     {[1, 2, 3, 4, 5].map((star) => (
                         <StarIcon
-                            key={star}
+                            key={`star-${star}`}
                             size={24}
                             className={star <= userRating ? 'filled' : ''}
                             onClick={() => handleRating(star)}
@@ -212,8 +236,8 @@ const PostDetail = ({ user }) => {
 
                 <h2>Bình luận</h2>
                 <div className="comments">
-                    {comments.length > 0 ? comments.map(comment => (
-                        <div key={comment.id} className="comment">
+                    {comments.length > 0 ? comments.map((comment, index) => (
+                        <div key={getCommentKey(comment, index)} className="comment">
                             <strong>{comment.author}</strong>
                             <p>{comment.content}</p>
                         </div>
@@ -226,8 +250,14 @@ const PostDetail = ({ user }) => {
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Thêm bình luận..."
                         onKeyDown={handleKeyDown}
+                        disabled={isSubmitting}
                     />
-                    <button onClick={handleAddComment}>Gửi</button>
+                    <button
+                        onClick={handleAddComment}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Đang gửi...' : 'Gửi'}
+                    </button>
                 </div>
             </div>
         </div>
