@@ -11,8 +11,10 @@ const AdminAddPost = () => {
     const [locationID, setLocationID] = useState("");
     const [locations, setLocations] = useState([]);
     const [category, setCategory] = useState("general");
+    const [isDragging, setIsDragging] = useState(false);
 
     const inputFileRef = useRef(null);
+    const dropZoneRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,7 +31,57 @@ const AdminAddPost = () => {
     }, []);
 
     const handleImageChange = (e) => {
-        setImages((prevImages) => [...prevImages, ...Array.from(e.target.files)]);
+        const files = Array.from(e.target.files);
+        addNewImages(files);
+    };
+
+    // Xử lý paste hình ảnh
+    const handlePaste = (e) => {
+        const items = e.clipboardData?.items;
+        const imageFiles = [];
+        
+        if (items) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    imageFiles.push(file);
+                }
+            }
+            if (imageFiles.length > 0) {
+                addNewImages(imageFiles);
+                e.preventDefault();
+            }
+        }
+    };
+
+    // Xử lý kéo thả hình ảnh
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.type.startsWith('image/')
+        );
+        
+        if (files.length > 0) {
+            addNewImages(files);
+        }
+    };
+
+    // Hàm chung để thêm hình ảnh mới
+    const addNewImages = (newFiles) => {
+        const validImageFiles = newFiles.filter(file => file.type.startsWith('image/'));
+        setImages(prevImages => [...prevImages, ...validImageFiles]);
     };
 
     const handleDeleteImage = (index) => {
@@ -115,13 +167,26 @@ const AdminAddPost = () => {
                 />
 
                 <label className="label-images-add">Hình ảnh:</label>
-                <input
-                    ref={inputFileRef}
-                    type="file"
-                    onChange={handleImageChange}
-                    multiple
-                    className="image-input-add"
-                />
+                <div 
+                    className={`drop-zone ${isDragging ? 'dragging' : ''}`}
+                    ref={dropZoneRef}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onPaste={handlePaste}
+                    tabIndex="0"
+                >
+                    <p>Kéo thả hoặc dán (Ctrl+V) hình ảnh vào đây</p>
+                    <p>hoặc</p>
+                    <input
+                        ref={inputFileRef}
+                        type="file"
+                        onChange={handleImageChange}
+                        multiple
+                        accept="image/*"
+                        className="image-input-add"
+                    />
+                </div>
 
                 <div className="image-preview-container-add">
                     {previewImages()}

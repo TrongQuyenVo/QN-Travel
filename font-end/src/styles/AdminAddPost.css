@@ -49,6 +49,7 @@
     padding: 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
+    margin: 10px 0;
 }
 
 .content-textarea-add {
@@ -83,21 +84,46 @@
 }
 
 /* Xem trước ảnh */
+.drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.drop-zone.dragging {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.drop-zone p {
+    margin: 8px 0;
+    color: #666;
+}
+
+.drop-zone:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
 .image-preview-container-add {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
-    justify-content: flex-start;
     margin-top: 20px;
-    flex-wrap: wrap;
 }
 
 .image-preview-add {
     position: relative;
-    width: 250px;
-    height: 150px;
-    overflow: hidden;
+    aspect-ratio: 1;
     border-radius: 8px;
-    border: 2px solid #ddd;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .image-preview-img-add {
@@ -108,18 +134,24 @@
 
 .delete-image-add {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.9);
     border: none;
     border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 5px;
+    color: #dc3545;
+    transition: all 0.2s;
 }
 
 .delete-image-add:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: #dc3545;
+    color: white;
 }
 
 /* Style cho các label */

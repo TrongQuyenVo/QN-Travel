@@ -27,6 +27,12 @@ const Homepage = () => {
     const [showAllEvents, setShowAllEvents] = useState(false);
     const [showAllFood, setShowAllFood] = useState(false);
     const [showAllPosts, setShowAllPosts] = useState(false);
+    // Thêm state cho bộ lọc
+    const [filters, setFilters] = useState({
+        category: 'all', // 'all', 'location', 'food', 'event'
+        rating: 0, // Minimum rating
+        sortBy: 'newest' // 'newest', 'oldest', 'rating'
+    });
 
     const suggestionsRef = useRef(null); // Thêm lại ref cho dropdown gợi ý
     const navigate = useNavigate();
@@ -82,13 +88,30 @@ const Homepage = () => {
         const inputValue = value.trim().toLowerCase();
         const inputLength = inputValue.length;
         if (inputLength === 0) return [];
+        
         const postSuggestions = posts
             .filter(post => post.title.toLowerCase().includes(inputValue))
-            .map(post => ({ text: post.title, type: 'post', id: post._id }));
+            .map(post => ({ 
+                text: post.title, 
+                type: 'post', 
+                id: post._id,
+                image: post.images && post.images.length > 0 ? post.images[0] : 'default-image.jpg',
+                category: post.category,
+                rating: post.rating || 0
+            }));
+            
         const locationSuggestions = featuredLocations
             .filter(location => location.name.toLowerCase().includes(inputValue))
-            .map(location => ({ text: location.name, type: 'location', id: location._id }));
-        return [...postSuggestions, ...locationSuggestions].slice(0, 8);
+            .map(location => ({ 
+                text: location.name, 
+                type: 'location', 
+                id: location._id,
+                image: location.image || 'default-image.jpg',
+                category: 'location',
+                rating: location.rating || 0
+            }));
+            
+        return [...postSuggestions, ...locationSuggestions].slice(0, 5); // Giảm xuống 5 gợi ý để hiển thị đẹp hơn
     };
 
     // Thêm lại logic xử lý thay đổi input tìm kiếm
@@ -138,30 +161,50 @@ const Homepage = () => {
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) return;
+
         try {
-            setIsLoading(true);
-            const filteredPosts = posts.filter(post =>
-                post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                post.content.toLowerCase().includes(searchQuery.toLowerCase())
-            );
             const locationResponse = await axios.get('http://localhost:5000/api/posts/search/location', {
-                params: { locationName: searchQuery },
+                params: { 
+                    locationName: searchQuery,
+                    category: filters.category,
+                    rating: filters.rating
+                },
             });
-            const combinedResults = [...filteredPosts];
-            locationResponse.data.forEach(post => {
-                if (!combinedResults.some(p => p._id === post._id)) {
-                    combinedResults.push(post);
+
+            let filteredResults = locationResponse.data;
+
+            // Lọc theo category nếu không phải 'all'
+            if (filters.category !== 'all') {
+                filteredResults = filteredResults.filter(post => post.category === filters.category);
+            }
+
+            // Lọc theo rating
+            if (filters.rating > 0) {
+                filteredResults = filteredResults.filter(post => 
+                    post.rating >= filters.rating
+                );
+            }
+
+            // Sắp xếp kết quả
+            filteredResults.sort((a, b) => {
+                switch (filters.sortBy) {
+                    case 'newest':
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    case 'oldest':
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    case 'rating':
+                        return (b.rating || 0) - (a.rating || 0);
+                    default:
+                        return 0;
                 }
             });
-            setSearchResults(combinedResults);
+
+            setSearchResults(filteredResults);
             setShowSearchResults(true);
             setActiveTab('search-results');
-            setShowSuggestions(false);
         } catch (error) {
-            console.error('Lỗi khi tìm kiếm bài viết:', error);
-            setErrorMessage('Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại sau!');
-        } finally {
-            setIsLoading(false);
+            console.error('Lỗi khi tìm kiếm:', error);
+            setErrorMessage('Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại!');
         }
     };
 
@@ -215,28 +258,38 @@ const Homepage = () => {
                         <div className="search-container" ref={suggestionsRef}>
                             <input
                                 type="text"
-                                placeholder="Tìm kiếm điểm đến..."
+                                placeholder="Tìm kiếm địa điểm, ẩm thực, sự kiện..."
                                 value={searchQuery}
                                 onChange={handleSearchInputChange}
-                                onFocus={() => setShowSuggestions(suggestions.length > 0)}
+                                className="search-input"
                             />
                             <button type="submit"><SearchIcon size={20} /></button>
-                            {showSuggestions && (
+                            {showSuggestions && suggestions.length > 0 && (
                                 <div className="search-suggestions">
                                     {suggestions.map((suggestion, index) => (
                                         <div
-                                            key={index}
+                                            key={`${suggestion.type}-${suggestion.id}`}
                                             className="suggestion-item"
                                             onClick={() => handleSelectSuggestion(suggestion)}
                                         >
-                                            <div className="suggestion-icon">
-                                                {suggestion.type === 'post' ? '📝' : '📍'}
+                                            <div className="suggestion-image">
+                                                <img src={suggestion.image} alt={suggestion.text} />
                                             </div>
-                                            <div className="suggestion-text">
-                                                {suggestion.text}
-                                                <span className="suggestion-type">
-                                                    {suggestion.type === 'post' ? 'Bài viết' : 'Địa điểm'}
-                                                </span>
+                                            <div className="suggestion-content">
+                                                <div className="suggestion-title">{suggestion.text}</div>
+                                                <div className="suggestion-details">
+                                                    <span className="suggestion-type">
+                                                        {suggestion.type === 'location' ? 'Địa điểm' :
+                                                         suggestion.category === 'food' ? 'Ẩm thực' :
+                                                         suggestion.category === 'event' ? 'Sự kiện' : 'Bài viết'}
+                                                    </span>
+                                                    {suggestion.rating > 0 && (
+                                                        <span className="suggestion-rating">
+                                                            <StarIcon size={14} />
+                                                            {suggestion.rating.toFixed(1)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -262,6 +315,47 @@ const Homepage = () => {
                     <div className="search-header">
                         <h2 className="text-2xl font-bold mb-6">Kết quả tìm kiếm cho: "{searchQuery}"</h2>
                         <button onClick={clearSearch} className="clear-search-btn">Xóa tìm kiếm</button>
+                        
+                        {/* Thêm bộ lọc tìm kiếm */}
+                        <div className="search-filters">
+                            <div className="filter-group">
+                                <label>Loại:</label>
+                                <select 
+                                    value={filters.category}
+                                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                                >
+                                    <option value="all">Tất cả</option>
+                                    <option value="location">Địa điểm</option>
+                                    <option value="food">Ẩm thực</option>
+                                    <option value="event">Sự kiện</option>
+                                </select>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label>Đánh giá tối thiểu:</label>
+                                <select 
+                                    value={filters.rating}
+                                    onChange={(e) => setFilters({...filters, rating: Number(e.target.value)})}
+                                >
+                                    <option value="0">Tất cả</option>
+                                    <option value="3">3+ sao</option>
+                                    <option value="4">4+ sao</option>
+                                    <option value="5">5 sao</option>
+                                </select>
+                            </div>
+                            
+                            <div className="filter-group">
+                                <label>Sắp xếp theo:</label>
+                                <select 
+                                    value={filters.sortBy}
+                                    onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                                >
+                                    <option value="newest">Mới nhất</option>
+                                    <option value="oldest">Cũ nhất</option>
+                                    <option value="rating">Đánh giá cao nhất</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     {searchResults.length === 0 ? (
                         <div className="no-results">
@@ -429,35 +523,7 @@ const Homepage = () => {
                 <button onClick={() => handleNavigate('/plan-trip')}>Bắt đầu ngay</button>
             </div>
 
-            <footer className="footer">
-                <div className="footer-container">
-                    <div className="footer-section">
-                        <h3>Khám phá Quảng Nam</h3>
-                        <ul>
-                            <li><button onClick={() => handleNavigate('/locations')}>Điểm đến</button></li>
-                            <li><button onClick={() => handleNavigate('/posts')}>Câu chuyện</button></li>
-                            <li><button onClick={() => handleNavigate('/plan-trip')}>Lên kế hoạch</button></li>
-                        </ul>
-                    </div>
-                    <div className="footer-section">
-                        <h3>Liên hệ</h3>
-                        <p>Email: info@explorequangnam.com</p>
-                        <p>Điện thoại: (+84) 123 456 789</p>
-                        <p>Địa chỉ: Hội An, Quảng Nam</p>
-                    </div>
-                    <div className="footer-section">
-                        <h3>Theo dõi chúng tôi</h3>
-                        <div className="social-links">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-                        </div>
-                    </div>
-                </div>
-                <div className="footer-bottom">
-                    <p>© {new Date().getFullYear()} Khám phá Quảng Nam. All rights reserved.</p>
-                </div>
-            </footer>
+   
         </div>
     );
 };

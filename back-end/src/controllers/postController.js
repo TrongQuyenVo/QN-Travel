@@ -114,15 +114,15 @@ exports.getPosts = async (req, res) => {
     try {
         const posts = await Post.find().populate('locationID');
         
-        // Xử lý ảnh cho mỗi bài đăng
+        // Thêm đường dẫn đầy đủ cho hình ảnh
         posts.forEach(post => {
             post.images = post.images.map(img => `http://localhost:5000/uploads/${img}`);
         });
-        
+
         res.status(200).json(posts);
     } catch (error) {
-        console.error('Lỗi khi lấy bài viết:', error);
-        res.status(500).json({ error: 'Lỗi khi lấy bài viết', details: error.message });
+        console.error('Lỗi khi lấy danh sách bài viết:', error);
+        res.status(500).json({ error: 'Lỗi khi lấy danh sách bài viết' });
     }
 };
 
@@ -150,44 +150,28 @@ exports.getPostsByCategory = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
     try {
-        // Kiểm tra xem req.params.id có phải ObjectId hợp lệ không
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: 'ID bài viết không hợp lệ' });
+        const post = await Post.findById(req.params.id)
+            .populate('locationID')
+            .populate({
+                path: 'comments',
+                populate: { path: 'userID', select: 'name avatar' }
+            })
+            .populate({
+                path: 'ratings',
+                populate: { path: 'userID', select: 'name' }
+            });
+
+        if (!post) {
+            return res.status(404).json({ error: 'Không tìm thấy bài viết' });
         }
 
-        let post = await Post.findById(req.params.id);
+        // Thêm đường dẫn đầy đủ cho hình ảnh
+        post.images = post.images.map(img => `http://localhost:5000/uploads/${img}`);
 
-        if (!post) return res.status(404).json({ error: 'Bài viết không tồn tại' });
-
-        // Populate locationID
-        if (post.locationID && mongoose.Types.ObjectId.isValid(post.locationID)) {
-            post = await Post.findById(req.params.id)
-                .populate('locationID')
-                .populate({
-                    path: 'ratings',
-                    populate: { path: 'userID', select: 'name' },
-                });
-        }
-
-        // Xử lý ảnh
-        post.images = Array.isArray(post.images)
-            ? post.images.map(img => `http://localhost:5000/uploads/${img}`)
-            : [];
-
-        const postObj = post.toObject();
-
-        // Chuyển đổi dữ liệu bình luận
-        postObj.comments = Array.isArray(postObj.comments)
-            ? postObj.comments.map(comment => ({
-                  ...comment,
-                  rating: comment.rating !== undefined ? comment.rating : 0,
-              }))
-            : [];
-
-        res.status(200).json(postObj);
+        res.status(200).json(post);
     } catch (error) {
         console.error('Lỗi khi lấy bài viết:', error);
-        res.status(500).json({ error: 'Lỗi khi lấy bài viết', details: error.message });
+        res.status(500).json({ error: 'Lỗi khi lấy bài viết' });
     }
 };
 
@@ -260,7 +244,10 @@ exports.addComment = async (req, res) => {
         if (parsedRating > 0 && userId && mongoose.Types.ObjectId.isValid(userId)) {
             try {
                 const userObjectId = new mongoose.Types.ObjectId(userId);
-                let existingRating = await Rating.findOne({ userID: userObjectId, postID: req.params.id });
+                let existingRating = await Rating.findOne({ 
+                    userID: userObjectId, 
+                    postID: req.params.id 
+                });
                 
                 if (existingRating) {
                     existingRating.score = parsedRating;
