@@ -5,6 +5,7 @@ const commentSchema = new mongoose.Schema({
     content: { type: String, required: true },
     rating: { type: Number, min: 0, max: 5, default: 0 },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
     date: { type: Date, default: Date.now },
 });
 
@@ -33,17 +34,7 @@ const postSchema = new mongoose.Schema({
         ref: 'Location',
         required: true,
     },
-    comments: [
-        {
-            author: String,
-            content: String,
-            date: Date,
-            approved: {
-                type: Boolean,
-                default: false,
-            },
-        },
-    ],
+    comments: [commentSchema],
     rating: {
         type: Number,
         default: 0,
