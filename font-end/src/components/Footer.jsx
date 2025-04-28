@@ -1,49 +1,50 @@
 import React from 'react';
 import { FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
 import { SiZalo } from 'react-icons/si';
+import '../styles/Footer.css';
 
 const Footer = () => {
     return (
-        <footer className="bg-gray-800 text-white p-8">
-            <div className="container mx-auto flex flex-col md:flex-row justify-between">
-                <div className="mb-8 md:mb-0">
-                    <h2 className="text-lg font-bold mb-2">GIỚI THIỆU</h2>
-                    <p>Quảng Nam Tourism là một tổ chức chuyên cung cấp các dịch vụ du lịch và khám phá văn hóa tại Quảng Nam.</p>
-                    <p>Chúng tôi cam kết mang đến cho bạn những trải nghiệm tuyệt vời và đáng nhớ.</p>
-                    <a href="#" className="text-blue-400 mt-2 inline-block">Xem thêm</a>
+        <footer className="footer">
+            <div className="footer-container">
+                <div className="footer-about">
+                    <h2 className="footer-title">GIỚI THIỆU</h2>
+                    <p className="footer-text">Quảng Nam Tourism là một tổ chức chuyên cung cấp các dịch vụ du lịch và khám phá văn hóa tại Quảng Nam.</p>
+                    <p className="footer-text">Chúng tôi cam kết mang đến cho bạn những trải nghiệm tuyệt vời và đáng nhớ.</p>
+                    <a href="#" className="footer-read-more">Xem thêm</a>
                 </div>
-                <div className="mb-8 md:mb-0">
-                    <h2 className="text-lg font-bold mb-2">LIÊN KẾT MẠNG XÃ HỘI</h2>
-                    <div className="flex flex-col space-y-2">
-                        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
-                            <FaFacebook className="w-6 h-6" />
+                <div className="footer-social">
+                    <h2 className="footer-title">LIÊN KẾT MẠNG XÃ HỘI</h2>
+                    <div className="footer-social-links">
+                        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                            <FaFacebook className="footer-social-icon" />
                             <span>Facebook</span>
                         </a>
-                        <a href="https://zalo.me" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
-                            <SiZalo className="w-6 h-6" />
+                        <a href="https://zalo.me" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                            <SiZalo className="footer-social-icon" />
                             <span>Zalo</span>
                         </a>
-                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
-                            <FaInstagram className="w-6 h-6" />
+                        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                            <FaInstagram className="footer-social-icon" />
                             <span>Instagram</span>
                         </a>
-                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
-                            <FaYoutube className="w-6 h-6" />
+                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                            <FaYoutube className="footer-social-icon" />
                             <span>YouTube</span>
                         </a>
                     </div>
                 </div>
-                <div>
-                    <h2 className="text-lg font-bold mb-2">LIÊN HỆ</h2>
-                    <p>Địa chỉ: 566 Núi Thành, P. Hòa Cường Nam,</p>
-                    <p>Q. Hải Châu, TP. Đà Nẵng</p>
-                    <p>Email: <a href="mailto:info@quangnamtourism.com" className="text-blue-400">info@quangnamtourism.com</a></p>
-                    <p>Điện thoại: <a href="tel:+123456789" className="text-blue-400">+123 456 789</a></p>
-                    <p>Website: <a href="https://www.quangnamtourism.com" className="text-blue-400">quangnamtourism.com</a></p>
+                <div className="footer-contact">
+                    <h2 className="footer-title">LIÊN HỆ</h2>
+                    <p className="footer-text">Địa chỉ: 566 Núi Thành, P. Hòa Cường Nam,</p>
+                    <p className="footer-text">Q. Hải Châu, TP. Đà Nẵng</p>
+                    <p className="footer-text">Email: <a href="mailto:info@quangnamtourism.com" className="footer-link">info@quangnamtourism.com</a></p>
+                    <p className="footer-text">Điện thoại: <a href="tel:+123456789" className="footer-link">+123 456 789</a></p>
+                    <p className="footer-text">Website: <a href="https://www.quangnamtourism.com" className="footer-link">quangnamtourism.com</a></p>
                 </div>
             </div>
-            <div className="text-center mt-8">
-                <p>© 2025 Quảng Nam Tourism. All Rights Reserved.</p>
+            <div className="footer-copyright">
+                <p className="footer-text">© 2025 Quảng Nam Tourism. All Rights Reserved.</p>
             </div>
         </footer>
     );

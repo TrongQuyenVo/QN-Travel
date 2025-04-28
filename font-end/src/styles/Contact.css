@@ -14,16 +14,16 @@ body {
     background-color: #f5f7fa;
 }
 
-.container {
+.contact-page {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 5px auto;
     padding: 0 15px;
 }
 
 /* Banner styles */
 .banner {
     position: relative;
-    height: 380px;
+    height: 100%;
     overflow: hidden;
     margin-bottom: 3rem;
 }
