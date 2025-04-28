@@ -28,7 +28,7 @@ const Homepage = () => {
     const [showAllFood, setShowAllFood] = useState(false);
     const [showAllPosts, setShowAllPosts] = useState(false);
 
-    const suggestionsRef = useRef(null); // Thêm lại ref cho dropdown gợi ý
+    const suggestionsRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -213,7 +213,7 @@ const Homepage = () => {
                     <p>Trải nghiệm văn hóa và thiên nhiên</p>
                     <form onSubmit={handleSearch} className="search">
                         <div className="search-container" ref={suggestionsRef}>
-                            <input
+                            <input className="search-input"
                                 type="text"
                                 placeholder="Tìm kiếm điểm đến..."
                                 value={searchQuery}
@@ -251,8 +251,8 @@ const Homepage = () => {
                 {['locations', 'posts', ...(showSearchResults ? ['search-results'] : [])].map(tab => (
                     <button key={tab} className={activeTab === tab ? 'active' : ''} onClick={() => setActiveTab(tab)}>
                         {tab === 'locations' ? 'Điểm đến nổi bật' :
-                         tab === 'posts' ? 'Câu chuyện du lịch' :
-                         tab === 'search-results' ? `Kết quả tìm kiếm (${searchResults.length})` : ''}
+                            tab === 'posts' ? 'Câu chuyện du lịch' :
+                                tab === 'search-results' ? `Kết quả tìm kiếm (${searchResults.length})` : ''}
                     </button>
                 ))}
             </div>
@@ -291,8 +291,8 @@ const Homepage = () => {
                                             {post.category && (
                                                 <span className="post-category">
                                                     {post.category === 'food' ? '🍜 Ẩm thực' :
-                                                     post.category === 'event' ? '🎉 Sự kiện' :
-                                                     post.category === 'story' ? '📖 Câu chuyện' : post.category}
+                                                        post.category === 'event' ? '🎉 Sự kiện' :
+                                                            post.category === 'story' ? '📖 Câu chuyện' : post.category}
                                                 </span>
                                             )}
                                         </div>
@@ -422,42 +422,6 @@ const Homepage = () => {
                     </div>
                 </>
             )}
-
-            <div className="cta">
-                <h2>Lên kế hoạch cho chuyến đi</h2>
-                <p>Khám phá đền chùa cổ kính, bãi biển, và ẩm thực.</p>
-                <button onClick={() => handleNavigate('/plan-trip')}>Bắt đầu ngay</button>
-            </div>
-
-            <footer className="footer">
-                <div className="footer-container">
-                    <div className="footer-section">
-                        <h3>Khám phá Quảng Nam</h3>
-                        <ul>
-                            <li><button onClick={() => handleNavigate('/locations')}>Điểm đến</button></li>
-                            <li><button onClick={() => handleNavigate('/posts')}>Câu chuyện</button></li>
-                            <li><button onClick={() => handleNavigate('/plan-trip')}>Lên kế hoạch</button></li>
-                        </ul>
-                    </div>
-                    <div className="footer-section">
-                        <h3>Liên hệ</h3>
-                        <p>Email: info@explorequangnam.com</p>
-                        <p>Điện thoại: (+84) 123 456 789</p>
-                        <p>Địa chỉ: Hội An, Quảng Nam</p>
-                    </div>
-                    <div className="footer-section">
-                        <h3>Theo dõi chúng tôi</h3>
-                        <div className="social-links">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-                        </div>
-                    </div>
-                </div>
-                <div className="footer-bottom">
-                    <p>© {new Date().getFullYear()} Khám phá Quảng Nam. All rights reserved.</p>
-                </div>
-            </footer>
         </div>
     );
 };

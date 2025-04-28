@@ -62,15 +62,15 @@ const PostDetail = ({ user }) => {
             setShowModal(true);
             return;
         }
-    
+
         if (!newComment.trim() || newComment.length > 500) {
             setError('Bình luận không được để trống và không được dài quá 500 ký tự.');
             return;
         }
-    
+
         if (isSubmitting) return;
         setIsSubmitting(true);
-    
+
         try {
             const currentRating = userRating > 0 ? userRating : 0;
             const response = await axios.post(
@@ -79,7 +79,7 @@ const PostDetail = ({ user }) => {
                     author: user.userName,
                     content: newComment.trim(),
                     rating: currentRating,
-                    userId: user.id, // Thêm userId vào body
+                    userId: user.id,
                 },
                 {
                     headers: {
@@ -88,31 +88,32 @@ const PostDetail = ({ user }) => {
                     },
                 }
             );
-    
-            const newCommentFromServer = response.data.comment; // Lấy comment từ response
-    
-            // Kiểm tra nếu server trả về lỗi
+
+            const newCommentFromServer = response.data.comment;
+
             if (!response.data.success) {
                 throw new Error(response.data.error || 'Không thể thêm bình luận');
             }
-    
-            // Kiểm tra nếu dữ liệu trả về không có _id
+
             if (!newCommentFromServer || !newCommentFromServer._id) {
                 throw new Error('Dữ liệu trả về từ server không hợp lệ: Thiếu trường _id');
             }
-    
-            // Đảm bảo newCommentFromServer có rating
+
             newCommentFromServer.rating = currentRating;
-    
-            // Thêm bình luận mới vào state comments
+
             setComments((prevComments) => [...prevComments, newCommentFromServer]);
-    
-            // Cập nhật post từ response
+
+            // Cập nhật post từ response, nhưng giữ lại trường images từ post hiện tại
             const updatedPost = response.data.post;
-            setPost(updatedPost);
+            setPost({
+                ...post,              // Giữ lại tất cả thuộc tính hiện tại
+                ...updatedPost,       // Cập nhật các thuộc tính mới
+                images: post.images   // Luôn giữ lại images từ state hiện tại
+            });
+
             setRatingCount(updatedPost.ratingCount);
             setTotalRatings(updatedPost.rating * updatedPost.ratingCount);
-    
+
             setNewComment('');
             setUserRating(0);
             setError(null);
@@ -142,14 +143,18 @@ const PostDetail = ({ user }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await axios.post(`http://localhost:5000/api/posts/${id}/rate`, {
+            const response = await axios.post(`http://localhost:5000/api/posts/${id}/rating`, {
                 rating: userRating,
                 userId: user.id,
             });
 
             if (response.data && response.data.success) {
                 const updatedPost = response.data.post;
-                setPost(updatedPost);
+                setPost({
+                    ...post,              // Giữ lại tất cả thuộc tính hiện tại
+                    ...updatedPost,       // Cập nhật các thuộc tính mới
+                    images: post.images   // Luôn giữ lại images từ state hiện tại
+                });
                 setRatingCount(updatedPost.ratingCount);
                 setTotalRatings(updatedPost.rating * updatedPost.ratingCount);
                 setUserRating(0);
@@ -221,6 +226,7 @@ const PostDetail = ({ user }) => {
     const handleThumbnailClick = (index) => {
         setCurrentImageIndex(index);
     };
+    if (!post) return <div>Đang tải...</div>;
 
     const displayAverageRating = () => {
         const averageRating = ratingCount > 0 ? (totalRatings / ratingCount).toFixed(1) : 0;
@@ -248,7 +254,7 @@ const PostDetail = ({ user }) => {
             return (
                 <div key={comment._id} className="comment">
                     <strong>{comment.author}</strong>
-                    
+
                     {ratingScore > 0 && (
                         <div className="comment-rating" style={{ display: 'flex', alignItems: 'center' }}>
                             <span style={{ marginRight: '8px' }}>Đánh giá:</span>
@@ -298,39 +304,36 @@ const PostDetail = ({ user }) => {
                     </div>
                 )}
 
-                {post.images?.length > 0 && (
+                {post.images && post.images.length > 0 && (
                     <div className="post-images">
                         <div className="main-image">
-                            <img
-                                src={post.images[currentImageIndex]}
-                                alt={`Hình ảnh ${currentImageIndex + 1}`}
-                            />
-                            {post.images.length > 1 && (
-                                <>
-                                    <div className="arrow-nav arrow-prev" onClick={handlePrevImage} aria-label="Ảnh trước">
-                                        <ChevronLeftIcon />
-                                    </div>
-                                    <div className="arrow-nav arrow-next" onClick={handleNextImage} aria-label="Ảnh sau">
-                                        <ChevronRightIcon />
-                                    </div>
-                                </>
-                            )}
+                            {post.images.map((image, index) => (
+                                <img
+                                    key={`main-img-${index}`}
+                                    src={image}
+                                    alt={`Hình ảnh ${index + 1}`}
+                                    className={index === currentImageIndex ? 'active' : ''}
+                                />
+                            ))}
+                            <div className="arrow-nav arrow-prev" onClick={handlePrevImage}>
+                                <ChevronLeftIcon />
+                            </div>
+                            <div className="arrow-nav arrow-next" onClick={handleNextImage}>
+                                <ChevronRightIcon />
+                            </div>
                         </div>
 
-                        {post.images.length > 1 && (
-                            <div className="thumbnails">
-                                {post.images.map((image, index) => (
-                                    <div
-                                        key={index}
-                                        className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                                        onClick={() => handleThumbnailClick(index)}
-                                        aria-label={`Chọn ảnh ${index + 1}`}
-                                    >
-                                        <img src={image} alt={`Thumbnail ${index + 1}`} />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <div className="thumbnails">
+                            {post.images.map((image, index) => (
+                                <div
+                                    key={`thumb-${index}`}
+                                    className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                                    onClick={() => handleThumbnailClick(index)}
+                                >
+                                    <img src={image} alt={`Thumbnail ${index + 1}`} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 

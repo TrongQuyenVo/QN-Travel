@@ -58,7 +58,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <span>Quản lý bài viết</span>
                 </button>
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "users" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("users");
@@ -67,7 +67,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <Users size={20} />
                     <span>Quản lý người dùng</span>
-                </button>
+                </button> */}
 
                 <button
                     className={`nav-item ${activeTab === "comments" ? "active" : ""}`}
@@ -91,7 +91,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <span>Địa điểm du lịch</span>
                 </button>
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "media" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("media");
@@ -100,9 +100,9 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <Image size={20} />
                     <span>Quản lý media</span>
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "events" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("events");
@@ -111,9 +111,9 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <Award size={20} />
                     <span>Sự kiện & lễ hội</span>
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "reviews" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("reviews");
@@ -122,9 +122,9 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <ThumbsUp size={20} />
                     <span>Đánh giá & xếp hạng</span>
-                </button>
+                </button> */}
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "settings" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("settings");
@@ -133,7 +133,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <Settings size={20} />
                     <span>Cài đặt hệ thống</span>
-                </button>
+                </button> */}
             </nav>
 
             <div className="sidebar-footer">

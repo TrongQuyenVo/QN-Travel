@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 
 // Route mẫu
 app.get('/', (req, res) => {
-    res.send('Welcome to Quang Nam Tourism API');
+  res.send('Welcome to Quang Nam Tourism API');
 });
 
 // Định nghĩa các tuyến đường
@@ -51,14 +51,14 @@ app.use((err, req, res, next) => {
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        const newPort = PORT + 1;
-        app.listen(newPort, () => {
-            console.log(`Port ${PORT} is in use, server running on port ${newPort}`);
-        });
-    } else {
-        console.error(err);
-    }
+  if (err.code === 'EADDRINUSE') {
+    const newPort = PORT + 1;
+    app.listen(newPort, () => {
+      console.log(`Port ${PORT} is in use, server running on port ${newPort}`);
+    });
+  } else {
+    console.error(err);
+  }
 });

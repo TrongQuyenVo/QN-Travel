@@ -1,6 +1,4 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import {
     Users, FileText, MessageSquare,
     Settings, Map, Award
@@ -8,34 +6,35 @@ import {
 import "../styles/AdminDashboard.css";
 
 const AdminDashboard = () => {
-    const [locations, setLocations] = useState([]);
-    const [comments, setComments] = useState([]);
-    const [ratings, setRatings] = useState([]);
-    const [posts, setPosts] = useState([]);
+    const [dashboardData, setDashboardData] = useState({
+        locations: [],
+        comments: [],
+        users: [],
+        posts: []
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchDashboardData = async () => {
             try {
-                const [locationsRes, commentsRes, ratingsRes, postsRes] = await Promise.all([
-                    axios.get("http://localhost:5000/api/locations"),
-                    axios.get("http://localhost:5000/api/comments"),
-                    axios.get("http://localhost:5000/api/ratings"),
-                    axios.get("http://localhost:5000/api/posts")
-                ]);
+                // Replace with your actual API fetch
+                const response = await fetch("http://localhost:5000/api/dashboard");
+                const data = await response.json();
 
-                setLocations(locationsRes.data);
-                setComments(commentsRes.data);
-                setRatings(ratingsRes.data);
-                setPosts(postsRes.data);
+                setDashboardData({
+                    locations: data.locations || [],
+                    comments: data.comments || [],
+                    users: data.users || [],
+                    posts: data.topPosts || []
+                });
             } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu:", error);
+                console.error("Error fetching dashboard data:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
+        fetchDashboardData();
     }, []);
 
     const notifications = [
@@ -45,7 +44,7 @@ const AdminDashboard = () => {
     ];
 
     if (loading) {
-        return <div>Đang tải...</div>;
+        return <div className="loading-indicator">Đang tải...</div>;
     }
 
     return (
@@ -70,7 +69,7 @@ const AdminDashboard = () => {
                             <Map size={24} />
                         </div>
                         <div className="stat-info">
-                            <h3>{locations.length}</h3>
+                            <h3>{dashboardData.locations.length}</h3>
                             <p>Địa điểm du lịch</p>
                             <span className="trend positive">+12% so với tháng trước</span>
                         </div>
@@ -81,7 +80,7 @@ const AdminDashboard = () => {
                             <FileText size={24} />
                         </div>
                         <div className="stat-info">
-                            <h3>{posts.length}</h3>
+                            <h3>{dashboardData.posts.length}</h3>
                             <p>Bài viết</p>
                             <span className="trend positive">+5% so với tháng trước</span>
                         </div>
@@ -92,7 +91,7 @@ const AdminDashboard = () => {
                             <MessageSquare size={24} />
                         </div>
                         <div className="stat-info">
-                            <h3>{comments.length}</h3>
+                            <h3>{dashboardData.comments.length}</h3>
                             <p>Bình luận & đánh giá</p>
                             <span className="trend positive">+18% so với tháng trước</span>
                         </div>
@@ -103,7 +102,7 @@ const AdminDashboard = () => {
                             <Users size={24} />
                         </div>
                         <div className="stat-info">
-                            <h3>{ratings.length}</h3>
+                            <h3>{dashboardData.users.length}</h3>
                             <p>Người dùng</p>
                             <span className="trend positive">+8% so với tháng trước</span>
                         </div>
@@ -116,8 +115,8 @@ const AdminDashboard = () => {
                         <div className="top-posts">
                             <h2>Bài viết được yêu thích nhất</h2>
                             <ul className="ranking-list">
-                                {posts.slice(0, 5).map((post, index) => (
-                                    <li key={post._id}>
+                                {dashboardData.posts.map((post, index) => (
+                                    <li key={post._id || index}>
                                         <span className="rank">{index + 1}</span>
                                         <span className="name">{post.title}</span>
                                         <span className="value">{post.rating} ⭐</span>

@@ -1,9 +1,9 @@
 /* AdminLocations.css */
+
 .locations-admin {
-    max-width: 1000px;
-    margin: 100px auto;
     padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1200px;
+    margin: 100px auto;
 }
 
 .locations-header {
@@ -11,98 +11,150 @@
     margin-bottom: 30px;
     text-align: center;
     font-size: 28px;
-    border-bottom: 2px solid #eaeaea;
+    border-bottom: 2px solid #e2e2e2;
     padding-bottom: 15px;
 }
 
-/* Form styles */
+/* Styling for Forms */
 .location-add-form,
 .location-edit-form {
     background-color: #f9f9f9;
-    padding: 20px;
     border-radius: 8px;
+    padding: 20px;
     margin-bottom: 30px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.location-edit-form {
-    border-left: 4px solid #4a90e2;
+.location-add-form h2,
+.location-edit-form h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #444;
+    font-size: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
 }
 
-.location-add-form input[type="text"],
-.location-edit-form input[type="text"] {
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #444;
+}
+
+.form-group input[type="text"] {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
 }
 
-.location-add-form input[type="file"],
-.location-edit-form input[type="file"] {
-    margin-bottom: 15px;
+.form-group input[type="file"] {
+    padding: 8px 0;
     width: 100%;
-    padding: 10px 0;
 }
 
-.location-add-form label,
-.location-edit-form label {
+.checkbox-group {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
     cursor: pointer;
 }
 
-.location-add-form input[type="checkbox"],
-.location-edit-form input[type="checkbox"] {
+.checkbox-group input[type="checkbox"] {
     margin-right: 8px;
     cursor: pointer;
+    width: 18px;
+    height: 18px;
 }
 
-.location-add-form button,
-.location-edit-form button.update-locations {
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 16px;
+/* Styling for image preview */
+.image-preview {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.location-add-form button:hover,
-.location-edit-form button.update-locations:hover {
-    background-color: #357abD;
+.image-preview p {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
 }
 
-/* Edit form action buttons */
+.location-image-preview {
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Form action buttons */
+.form-actions,
 .edit-actions {
     display: flex;
-    gap: 10px;
+    gap: 15px;
+    margin-top: 20px;
 }
 
+.add-button,
+.update-locations {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.add-button:hover,
+.update-locations:hover {
+    background-color: #45a049;
+}
+
+.add-button:disabled,
+.update-locations:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.cancel-button,
 .cancel-btn {
     background-color: #f44336;
     color: white;
     border: none;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 16px;
+    transition: background-color 0.2s;
 }
 
+.cancel-button:hover,
 .cancel-btn:hover {
     background-color: #d32f2f;
 }
 
-/* Location list styles */
+/* Locations list */
 .locations-list-title {
-    margin: 30px 0 15px;
+    margin-top: 30px;
+    margin-bottom: 15px;
     font-size: 22px;
-    color: #444;
+    color: #333;
 }
 
 .locations-list {
@@ -115,7 +167,8 @@
     display: flex;
     align-items: center;
     padding: 15px;
-    border-bottom: 1px solid #121212;
+    border-bottom: 1px solid #e2e2e2;
+    background-color: #fff;
     transition: background-color 0.2s;
 }
 
@@ -124,56 +177,75 @@
 }
 
 .location-image {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     object-fit: cover;
     border-radius: 4px;
     margin-right: 15px;
+    border: 1px solid #ddd;
 }
 
-.location-image-preview {
-    max-width: 200px;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin: 10px 0;
+.location-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.location-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: #333;
+}
+
+.featured-badge {
+    margin-left: 8px;
+    color: #ff9800;
+    font-size: 14px;
 }
 
 .location-actions {
-    margin-left: auto;
     display: flex;
     gap: 10px;
 }
 
 .location-edit-btn,
 .location-delete-btn {
-    padding: 6px 12px;
     border: none;
+    padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
 }
 
 .location-edit-btn {
-    background-color: #4a90e2;
-    color: white;
-}
-
-.location-delete-btn {
-    background-color: #e74c3c;
+    background-color: #2196F3;
     color: white;
 }
 
 .location-edit-btn:hover {
-    background-color: #357abD;
+    background-color: #0b7dda;
+}
+
+.location-delete-btn {
+    background-color: #f44336;
+    color: white;
 }
 
 .location-delete-btn:hover {
-    background-color: #c0392b;
+    background-color: #d32f2f;
 }
 
-/* Responsive adjustments */
+.no-locations {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+/* Responsive styling */
 @media (max-width: 768px) {
     .location-item {
         flex-direction: column;
@@ -181,14 +253,17 @@
     }
 
     .location-image {
-        margin-bottom: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 200px;
         margin-right: 0;
+        margin-bottom: 15px;
     }
 
     .location-actions {
-        margin-left: 0;
-        margin-top: 10px;
+        margin-top: 15px;
         width: 100%;
+        justify-content: space-between;
     }
 
     .location-edit-btn,
@@ -196,12 +271,15 @@
         flex: 1;
     }
 
+    .form-actions,
     .edit-actions {
         flex-direction: column;
     }
 
+    .add-button,
+    .update-locations,
+    .cancel-button,
     .cancel-btn {
-        margin-left: 0;
-        margin-top: 10px;
+        width: 100%;
     }
 }

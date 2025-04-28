@@ -118,7 +118,8 @@
 
 .image-grid {
     display: flex;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    flex-wrap: wrap;
+    /* Cập nhật ở đây */
     gap: 15px;
     margin-top: 10px;
 }
@@ -173,6 +174,7 @@
     text-overflow: ellipsis;
     color: #666;
 }
+
 
 /* Loading */
 .loading {

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "r
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Home from "./pages/Home";
+import ContactPages from "./pages/Contact";
 import Explore from "./pages/Explore";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -71,6 +72,8 @@ function MainLayout({ user, setUser, loading }) {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/contact" element={<ContactPages />} />
+
             <Route path="/posts/:id" element={<PostDetail user={user} />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/register" element={<Register setUser={setUser} />} />

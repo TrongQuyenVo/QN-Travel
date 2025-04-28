@@ -5,9 +5,7 @@ const commentSchema = new mongoose.Schema({
     content: { type: String, required: true },
     rating: { type: Number, min: 0, max: 5, default: 0 },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
     date: { type: Date, default: Date.now },
-    // Bỏ trường approved
 });
 
 const postSchema = new mongoose.Schema({

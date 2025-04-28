@@ -42,19 +42,6 @@ exports.createPost = async (req, res) => {
             ratingCount: 0,
         };
 
-        if (category === 'event') {
-            if (!eventDate) {
-                return res.status(400).json({ error: 'Ngày sự kiện là bắt buộc cho bài đăng sự kiện' });
-            }
-            postData.eventDate = eventDate;
-            if (eventEndDate) postData.eventEndDate = eventEndDate;
-        }
-
-        if (category === 'food') {
-            if (cuisine) postData.cuisine = cuisine;
-            if (priceRange) postData.priceRange = priceRange;
-        }
-
         const newPost = new Post(postData);
         await newPost.save();
 
@@ -67,7 +54,25 @@ exports.createPost = async (req, res) => {
 
 exports.updatePost = async (req, res) => {
     try {
-        const { title, content, locationID, removeImages, category, eventDate, eventEndDate, cuisine, priceRange } = req.body;
+        // Trích xuất dữ liệu từ request body
+        const { title, content, locationID, category } = req.body;
+
+        // Xử lý imagesToDelete hoặc removeImages
+        let imagesToRemove = [];
+        if (req.body.imagesToDelete) {
+            try {
+                imagesToRemove = JSON.parse(req.body.imagesToDelete);
+            } catch (e) {
+                console.error("Lỗi parse imagesToDelete:", e);
+            }
+        } else if (req.body.removeImages) {
+            try {
+                imagesToRemove = JSON.parse(req.body.removeImages);
+            } catch (e) {
+                console.error("Lỗi parse removeImages:", e);
+            }
+        }
+
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Bài viết không tồn tại' });
 
@@ -75,34 +80,67 @@ exports.updatePost = async (req, res) => {
             return res.status(400).json({ error: 'Tiêu đề và nội dung là bắt buộc' });
         }
 
-        if (removeImages && Array.isArray(removeImages)) {
-            post.images = post.images.filter(img => !removeImages.includes(img));
-            removeImages.forEach(img => {
-                fs.unlink(path.join(uploadDir, img), err => {
-                    if (err) console.error('Lỗi khi xóa ảnh:', err);
+        // Xử lý xóa ảnh
+        if (imagesToRemove && Array.isArray(imagesToRemove) && imagesToRemove.length > 0) {
+            console.log("Ảnh cần xóa:", imagesToRemove);
+            console.log("Ảnh hiện tại:", post.images);
+
+            // Lọc ra những ảnh cần giữ lại
+            const updatedImages = post.images.filter(img => {
+                // Lấy tên file từ đường dẫn đầy đủ
+                const imgFilename = img.split('/').pop();
+
+                // Kiểm tra xem img có trong danh sách cần xóa không
+                return !imagesToRemove.some(remImg => {
+                    if (typeof remImg === 'string') {
+                        // Kiểm tra đường dẫn đầy đủ hoặc tên file
+                        return img === remImg ||
+                            imgFilename === remImg ||
+                            remImg.includes(imgFilename) ||
+                            img.includes(remImg);
+                    }
+                    return false;
                 });
+            });
+
+            console.log("Ảnh sau khi lọc:", updatedImages);
+            post.images = updatedImages;
+
+            // Xóa file vật lý
+            imagesToRemove.forEach(img => {
+                // Xử lý tên file
+                let imgName = img;
+                if (img.includes('/')) {
+                    imgName = img.split('/').pop();
+                }
+
+                const filePath = path.join(uploadDir, imgName);
+                if (fs.existsSync(filePath)) {
+                    fs.unlink(filePath, err => {
+                        if (err) console.error('Lỗi khi xóa ảnh:', err);
+                    });
+                } else {
+                    console.log(`File không tồn tại: ${filePath}`);
+                }
             });
         }
 
+        // Thêm ảnh mới
         const newImages = req.files ? req.files.map(file => file.filename) : [];
         post.images.push(...newImages);
+
+        // Cập nhật thông tin khác
         post.title = title;
         post.content = content;
         post.locationID = locationID;
 
         if (category) post.category = category;
 
-        if (category === 'event') {
-            if (eventDate) post.eventDate = eventDate;
-            if (eventEndDate) post.eventEndDate = eventEndDate;
-        }
-
-        if (category === 'food') {
-            if (cuisine) post.cuisine = cuisine;
-            if (priceRange) post.priceRange = priceRange;
-        }
-
+        // Lưu bài viết
         await post.save();
+
+        // Trả về kết quả
+        console.log("Bài viết sau khi cập nhật:", post);
         res.status(200).json(post);
     } catch (error) {
         console.error('Lỗi khi cập nhật bài viết:', error);
@@ -113,12 +151,12 @@ exports.updatePost = async (req, res) => {
 exports.getPosts = async (req, res) => {
     try {
         const posts = await Post.find().populate('locationID');
-        
+
         // Xử lý ảnh cho mỗi bài đăng
         posts.forEach(post => {
             post.images = post.images.map(img => `http://localhost:5000/uploads/${img}`);
         });
-        
+
         res.status(200).json(posts);
     } catch (error) {
         console.error('Lỗi khi lấy bài viết:', error);
@@ -135,7 +173,7 @@ exports.getPostsByCategory = async (req, res) => {
         }
 
         const posts = await Post.find({ category }).populate('locationID');
-        
+
         // Xử lý ảnh cho mỗi bài đăng
         posts.forEach(post => {
             post.images = post.images.map(img => `http://localhost:5000/uploads/${img}`);
@@ -179,9 +217,9 @@ exports.getPostById = async (req, res) => {
         // Chuyển đổi dữ liệu bình luận
         postObj.comments = Array.isArray(postObj.comments)
             ? postObj.comments.map(comment => ({
-                  ...comment,
-                  rating: comment.rating !== undefined ? comment.rating : 0,
-              }))
+                ...comment,
+                rating: comment.rating !== undefined ? comment.rating : 0,
+            }))
             : [];
 
         res.status(200).json(postObj);
@@ -209,10 +247,6 @@ exports.deletePost = async (req, res) => {
     }
 };
 
-// const mongoose = require('mongoose');
-// const Post = require('../models/Post');
-// const Rating = require('../models/Rating');
-
 exports.addComment = async (req, res) => {
     try {
         console.log('Processing comment request for post ID:', req.params.id);
@@ -225,7 +259,7 @@ exports.addComment = async (req, res) => {
         if (content.length > 500) {
             return res.status(400).json({ success: false, error: 'Nội dung không được dài quá 500 ký tự' });
         }
-        
+
         // Validate rating
         const parsedRating = Number(rating);
         if (isNaN(parsedRating) || parsedRating < 0 || parsedRating > 5) {
@@ -261,7 +295,7 @@ exports.addComment = async (req, res) => {
             try {
                 const userObjectId = new mongoose.Types.ObjectId(userId);
                 let existingRating = await Rating.findOne({ userID: userObjectId, postID: req.params.id });
-                
+
                 if (existingRating) {
                     existingRating.score = parsedRating;
                     await existingRating.save();
@@ -278,7 +312,7 @@ exports.addComment = async (req, res) => {
                 const ratings = await Rating.find({ postID: req.params.id });
                 post.ratingCount = ratings.length;
                 post.rating = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.score, 0) / ratings.length : 0;
-                
+
                 await post.save();
             } catch (ratingError) {
                 console.error('Error processing rating:', ratingError);
@@ -291,7 +325,7 @@ exports.addComment = async (req, res) => {
             const populatedPost = await Post.findById(post._id)
                 .populate('locationID')
                 .populate({ path: 'ratings', populate: { path: 'userID', select: 'name' } });
-            
+
             return res.status(201).json({ success: true, comment: addedComment, post: populatedPost });
         } catch (populateError) {
             console.error('Error populating post data:', populateError);
@@ -342,18 +376,18 @@ exports.updateRating = async (req, res) => {
             return res.status(400).json({ error: 'userId không hợp lệ' });
         }
 
-        let existingRating = await Rating.findOne({ 
-            userID: new mongoose.Types.ObjectId(userId), 
-            postID: req.params.id 
+        let existingRating = await Rating.findOne({
+            userID: new mongoose.Types.ObjectId(userId),
+            postID: req.params.id
         });
         if (existingRating) {
             existingRating.score = rating;
             await existingRating.save();
         } else {
-            const newRating = new Rating({ 
+            const newRating = new Rating({
                 userID: new mongoose.Types.ObjectId(userId),
-                postID: req.params.id, 
-                score: rating 
+                postID: req.params.id,
+                score: rating
             });
             await newRating.save();
             // Thêm rating vào mảng ratings của post
@@ -366,7 +400,7 @@ exports.updateRating = async (req, res) => {
         post.rating = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.score, 0) / ratings.length : 0;
 
         await post.save();
-        
+
         // Trả về post đã được populate với ratings
         const updatedPost = await Post.findById(req.params.id)
             .populate('locationID')
@@ -391,11 +425,11 @@ exports.searchPostsByLocationName = async (req, res) => {
         const locationIds = locations.map(location => location._id);
 
         const posts = await Post.find({ locationID: { $in: locationIds } }).populate('locationID');
-        
+
         posts.forEach(post => {
             post.images = post.images.map(img => `http://localhost:5000/uploads/${img}`);
         });
-        
+
         res.status(200).json(posts);
     } catch (error) {
         console.error('Lỗi khi tìm kiếm bài viết:', error);
