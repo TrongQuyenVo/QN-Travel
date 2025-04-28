@@ -52,6 +52,7 @@ const postSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Rating' }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Post', postSchema);
