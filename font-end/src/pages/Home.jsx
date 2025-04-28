@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { SearchIcon, StarIcon, CalendarIcon, MessageCircle } from 'lucide-react';
@@ -17,15 +17,18 @@ const Homepage = () => {
     const [foodPosts, setFoodPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]); // Thêm lại state cho kết quả tìm kiếm
+    const [showSearchResults, setShowSearchResults] = useState(false); // Thêm lại state để hiển thị kết quả tìm kiếm
+    const [suggestions, setSuggestions] = useState([]); // Thêm lại state cho gợi ý tìm kiếm
+    const [showSuggestions, setShowSuggestions] = useState(false); // Thêm lại state để hiển thị gợi ý
     const [activeTab, setActiveTab] = useState('locations');
     const [storyPosts, setStoryPosts] = useState([]);
     const [errorMessage, setErrorMessage] = useState('');
-
-    // State cho việc hiển thị bài viết
     const [showAllEvents, setShowAllEvents] = useState(false);
     const [showAllFood, setShowAllFood] = useState(false);
     const [showAllPosts, setShowAllPosts] = useState(false);
 
+    const suggestionsRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,7 +41,6 @@ const Homepage = () => {
                 console.error('Lỗi khi lấy hình ảnh địa điểm:', error);
             }
         };
-
         fetchImages();
     }, []);
 
@@ -49,7 +51,6 @@ const Homepage = () => {
                 setFeaturedLocations(featuredRes.data);
                 const postsRes = await axios.get('http://localhost:5000/api/posts');
                 setPosts(postsRes.data);
-
                 setEventPosts(postsRes.data.filter(post => post.category === 'event'));
                 setFoodPosts(postsRes.data.filter(post => post.category === 'food'));
                 setStoryPosts(postsRes.data.filter(post => post.category === 'story'));
@@ -60,19 +61,107 @@ const Homepage = () => {
                 setIsLoading(false);
             }
         };
-
         fetchData();
     }, []);
 
+    // Thêm lại useEffect để xử lý click ngoài dropdown gợi ý
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+                setShowSuggestions(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [suggestionsRef]);
+
+    // Thêm lại logic tạo gợi ý tìm kiếm
+    const getSuggestions = (value) => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+        if (inputLength === 0) return [];
+        const postSuggestions = posts
+            .filter(post => post.title.toLowerCase().includes(inputValue))
+            .map(post => ({ text: post.title, type: 'post', id: post._id }));
+        const locationSuggestions = featuredLocations
+            .filter(location => location.name.toLowerCase().includes(inputValue))
+            .map(location => ({ text: location.name, type: 'location', id: location._id }));
+        return [...postSuggestions, ...locationSuggestions].slice(0, 8);
+    };
+
+    // Thêm lại logic xử lý thay đổi input tìm kiếm
+    const handleSearchInputChange = (e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+        if (value.trim()) {
+            const newSuggestions = getSuggestions(value);
+            setSuggestions(newSuggestions);
+            setShowSuggestions(newSuggestions.length > 0);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
+    };
+
+    // Thêm lại logic xử lý khi chọn gợi ý
+    const handleSelectSuggestion = (suggestion) => {
+        setSearchQuery(suggestion.text);
+        setShowSuggestions(false);
+        if (suggestion.type === 'post') {
+            navigate(`/posts/${suggestion.id}`);
+        } else if (suggestion.type === 'location') {
+            handleLocationSearch(suggestion.text);
+        }
+    };
+
+    // Thêm lại logic tìm kiếm theo địa điểm
+    const handleLocationSearch = async (locationName) => {
+        try {
+            setIsLoading(true);
+            const locationResponse = await axios.get('http://localhost:5000/api/posts/search/location', {
+                params: { locationName },
+            });
+            setSearchResults(locationResponse.data);
+            setShowSearchResults(true);
+            setActiveTab('search-results');
+        } catch (error) {
+            console.error('Lỗi khi tìm kiếm bài viết theo địa điểm:', error);
+            setErrorMessage('Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại sau!');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Cập nhật logic tìm kiếm chính
     const handleSearch = async (e) => {
         e.preventDefault();
+        if (!searchQuery.trim()) return;
         try {
-            const response = await axios.get('http://localhost:5000/api/posts/search', {
-                params: { query: searchQuery },
+            setIsLoading(true);
+            const filteredPosts = posts.filter(post =>
+                post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                post.content.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            const locationResponse = await axios.get('http://localhost:5000/api/posts/search/location', {
+                params: { locationName: searchQuery },
             });
-            setSearchResults(response.data);
+            const combinedResults = [...filteredPosts];
+            locationResponse.data.forEach(post => {
+                if (!combinedResults.some(p => p._id === post._id)) {
+                    combinedResults.push(post);
+                }
+            });
+            setSearchResults(combinedResults);
+            setShowSearchResults(true);
+            setActiveTab('search-results');
+            setShowSuggestions(false);
         } catch (error) {
             console.error('Lỗi khi tìm kiếm bài viết:', error);
+            setErrorMessage('Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại sau!');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -80,20 +169,18 @@ const Homepage = () => {
         navigate(path);
     };
 
-    // Hàm để hiển thị thêm bài viết khi nhấn nút
-    const toggleShowAllEvents = () => {
-        setShowAllEvents(!showAllEvents);
+    const toggleShowAllEvents = () => setShowAllEvents(!showAllEvents);
+    const toggleShowAllFood = () => setShowAllFood(!showAllFood);
+    const toggleShowAllPosts = () => setShowAllPosts(!showAllPosts);
+
+    // Thêm lại logic xóa kết quả tìm kiếm
+    const clearSearch = () => {
+        setSearchQuery('');
+        setSearchResults([]);
+        setShowSearchResults(false);
+        setActiveTab('locations');
     };
 
-    const toggleShowAllFood = () => {
-        setShowAllFood(!showAllFood);
-    };
-
-    const toggleShowAllPosts = () => {
-        setShowAllPosts(!showAllPosts);
-    };
-
-    // Giới hạn số bài viết hiển thị ban đầu
     const displayEventPosts = showAllEvents ? eventPosts : eventPosts.slice(0, 5);
     const displayFoodPosts = showAllFood ? foodPosts : foodPosts.slice(0, 5);
 
@@ -102,7 +189,6 @@ const Homepage = () => {
     return (
         <div className="homepage">
             <div className="hero-container">
-                {/* ... Hero section giữ nguyên ... */}
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
                     spaceBetween={0}
@@ -126,24 +212,98 @@ const Homepage = () => {
                     <h1>Khám phá Quảng Nam</h1>
                     <p>Trải nghiệm văn hóa và thiên nhiên</p>
                     <form onSubmit={handleSearch} className="search">
-                        <input className="search-input"
-                            type="text"
-                            placeholder="Tìm kiếm điểm đến..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <button type="submit"><SearchIcon size={20} /></button>
+                        <div className="search-container" ref={suggestionsRef}>
+                            <input className="search-input"
+                                type="text"
+                                placeholder="Tìm kiếm điểm đến..."
+                                value={searchQuery}
+                                onChange={handleSearchInputChange}
+                                onFocus={() => setShowSuggestions(suggestions.length > 0)}
+                            />
+                            <button type="submit"><SearchIcon size={20} /></button>
+                            {showSuggestions && (
+                                <div className="search-suggestions">
+                                    {suggestions.map((suggestion, index) => (
+                                        <div
+                                            key={index}
+                                            className="suggestion-item"
+                                            onClick={() => handleSelectSuggestion(suggestion)}
+                                        >
+                                            <div className="suggestion-icon">
+                                                {suggestion.type === 'post' ? '📝' : '📍'}
+                                            </div>
+                                            <div className="suggestion-text">
+                                                {suggestion.text}
+                                                <span className="suggestion-type">
+                                                    {suggestion.type === 'post' ? 'Bài viết' : 'Địa điểm'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </form>
                 </div>
             </div>
 
             <div className="tabs">
-                {['locations', 'posts'].map(tab => (
+                {['locations', 'posts', ...(showSearchResults ? ['search-results'] : [])].map(tab => (
                     <button key={tab} className={activeTab === tab ? 'active' : ''} onClick={() => setActiveTab(tab)}>
-                        {tab === 'locations' ? 'Điểm đến nổi bật' : tab === 'posts' ? 'Câu chuyện du lịch' : ''}
+                        {tab === 'locations' ? 'Điểm đến nổi bật' :
+                            tab === 'posts' ? 'Câu chuyện du lịch' :
+                                tab === 'search-results' ? `Kết quả tìm kiếm (${searchResults.length})` : ''}
                     </button>
                 ))}
             </div>
+
+            {activeTab === 'search-results' && (
+                <div className="search-results-container">
+                    <div className="search-header">
+                        <h2 className="text-2xl font-bold mb-6">Kết quả tìm kiếm cho: "{searchQuery}"</h2>
+                        <button onClick={clearSearch} className="clear-search-btn">Xóa tìm kiếm</button>
+                    </div>
+                    {searchResults.length === 0 ? (
+                        <div className="no-results">
+                            <p>Không tìm thấy kết quả phù hợp với "{searchQuery}"</p>
+                        </div>
+                    ) : (
+                        <div className="search-results-grid">
+                            {searchResults.map(post => (
+                                <div
+                                    key={post._id}
+                                    className="card search-result-card"
+                                    onClick={() => handleNavigate(`/posts/${post._id}`)}
+                                >
+                                    <div className="post-image-container">
+                                        <img
+                                            src={post.images?.[0] || 'default-image.jpg'}
+                                            alt={post.title}
+                                            onError={(e) => { e.target.src = 'default-image.jpg'; }}
+                                        />
+                                    </div>
+                                    <div className="post-content">
+                                        <h3 className="post-title">{post.title}</h3>
+                                        <div className="post-meta">
+                                            <span className="post-date">
+                                                <CalendarIcon size={16} /> {new Date(post.createdAt).toLocaleDateString()}
+                                            </span>
+                                            {post.category && (
+                                                <span className="post-category">
+                                                    {post.category === 'food' ? '🍜 Ẩm thực' :
+                                                        post.category === 'event' ? '🎉 Sự kiện' :
+                                                            post.category === 'story' ? '📖 Câu chuyện' : post.category}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="post-excerpt">{post.content.substring(0, 100)}...</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {activeTab === 'locations' && (
                 <>
@@ -156,7 +316,7 @@ const Homepage = () => {
                                 <div className="location-image-container">
                                     <img src={`http://localhost:5000${location.image}`}
                                         alt={location.name}
-                                        onError={(e) => { e.target.src = 'default-image.jpg'; }} // Nếu ảnh lỗi, thay bằng ảnh mặc định
+                                        onError={(e) => { e.target.src = 'default-image.jpg'; }}
                                     />
                                     <div className="location-name-overlay">
                                         <h3>{location.name}</h3>
@@ -166,7 +326,6 @@ const Homepage = () => {
                         ))}
                     </div>
                     <div className="event-food-container">
-                        {/* Phần Sự Kiện */}
                         <section className="event-posts">
                             <h2 className="section-title-event">🎉 Sự kiện và giải trí</h2>
                             <div className="event-content">
@@ -196,7 +355,6 @@ const Homepage = () => {
                             )}
                         </section>
 
-                        {/* Phần Ẩm Thực */}
                         <section className="food-posts">
                             <h2 className="section-title-food">🍜 Ẩm thực</h2>
                             <div className="food-content">
@@ -264,12 +422,6 @@ const Homepage = () => {
                     </div>
                 </>
             )}
-
-            <div className="cta">
-                <h2>Lên kế hoạch cho chuyến đi</h2>
-                <p>Khám phá đền chùa cổ kính, bãi biển, và ẩm thực.</p>
-                <button onClick={() => handleNavigate('/plan-trip')}>Bắt đầu ngay</button>
-            </div>
         </div>
     );
 };

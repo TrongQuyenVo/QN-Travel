@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 import "../styles/AdminEditPost.css";
 
 const AdminEditPost = () => {
@@ -12,19 +12,16 @@ const AdminEditPost = () => {
     const [imagesToDelete, setImagesToDelete] = useState([]);
     const [previewImages, setPreviewImages] = useState([]);
     const [locationID, setLocationID] = useState("");
+    const [locationName, setLocationName] = useState(""); // Thêm state cho tên địa điểm
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-    // Thêm state cho các danh mục
     const [category, setCategory] = useState("general");
-    // Các trường cho danh mục ẩm thực
-    const [cuisine, setCuisine] = useState("");
-    const [priceRange, setPriceRange] = useState("");
-    // Các trường cho danh mục sự kiện
-    const [eventDate, setEventDate] = useState("");
-    const [eventEndDate, setEventEndDate] = useState("");
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [selectedImage, setSelectedImage] = useState(null); // Thêm state cho hình ảnh được chọn
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // Thêm state cho index hình ảnh
+
+    // Thêm useRef cho input file
+    const inputFileRef = useRef(null);
 
     const navigate = useNavigate();
     const { id } = useParams();
@@ -43,25 +40,67 @@ const AdminEditPost = () => {
 
             try {
                 setLoading(true);
+
+                // Tải danh sách địa điểm trước
+                const locationsRes = await axios.get("http://localhost:5000/api/locations");
+                setLocations(locationsRes.data);
+
+                // Sau đó tải thông tin bài viết
                 const postRes = await axios.get(`http://localhost:5000/api/posts/${postId}`);
                 const post = postRes.data;
 
                 setTitle(post.title);
                 setContent(post.content);
-                setLocationID(post.locationID?.$oid || post.locationID);
+
+                // Xử lý location ID
+                let locID = post.locationID;
+
+                if (post.locationID) {
+                    let locID;
+
+                    // Trường hợp locationID đã được populate thành object đầy đủ
+                    if (typeof post.locationID === 'object' && post.locationID !== null) {
+                        if (post.locationID._id) {
+                            // Nếu có _id
+                            locID = post.locationID._id.$oid || post.locationID._id;
+                        } else if (post.locationID.$oid) {
+                            // Nếu có $oid
+                            locID = post.locationID.$oid;
+                        }
+
+                        // Nếu có thông tin name, thiết lập luôn
+                        if (post.locationID.name) {
+                            setLocationName(post.locationID.name);
+                        }
+                    } else {
+                        // Trường hợp locationID chỉ là string
+                        locID = post.locationID;
+                    }
+
+                    console.log("LocationID từ API:", post.locationID);
+                    console.log("LocationID đã xử lý:", locID);
+
+                    if (locID) {
+                        setLocationID(locID);
+
+                        // Nếu chưa có locationName, tìm trong danh sách locations
+                        if (!locationName && locationsRes.data && locationsRes.data.length > 0) {
+                            const locationObj = locationsRes.data.find(loc => {
+                                const locObjId = loc._id.$oid || loc._id;
+                                return String(locObjId) === String(locID);
+                            });
+
+                            if (locationObj) {
+                                console.log("Đã tìm thấy địa điểm:", locationObj.name);
+                                setLocationName(locationObj.name);
+                            }
+                        }
+                    }
+                }
 
                 // Thiết lập danh mục
                 if (post.category) {
                     setCategory(post.category);
-
-                    // Thiết lập các giá trị của danh mục tương ứng
-                    if (post.category === "food") {
-                        setCuisine(post.cuisine || "");
-                        setPriceRange(post.priceRange || "");
-                    } else if (post.category === "event") {
-                        setEventDate(post.eventDate || "");
-                        setEventEndDate(post.eventEndDate || "");
-                    }
                 }
 
                 // Xử lý danh sách ảnh hiện tại
@@ -71,9 +110,6 @@ const AdminEditPost = () => {
                     // Trường hợp sử dụng thuộc tính image cũ
                     setCurrentImages([post.image]);
                 }
-
-                const locationsRes = await axios.get("http://localhost:5000/api/locations");
-                setLocations(locationsRes.data);
 
                 setLoading(false);
             } catch (error) {
@@ -86,16 +122,34 @@ const AdminEditPost = () => {
         fetchData();
     }, [postId, navigate]);
 
-    // Xử lý thêm ảnh mới
+    // Cải thiện xử lý thêm ảnh mới
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
-        // Thêm vào state newImages để lưu trữ file ảnh mới
-        setNewImages([...newImages, ...files]);
+        // Kiểm tra kích thước và định dạng ảnh
+        const validFiles = files.filter(file => {
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            const maxSize = 5 * 1024 * 1024; // 5MB
 
-        // Tạo URL preview cho các ảnh mới
-        const newPreviewImages = files.map(file => ({
+            if (!validTypes.includes(file.type)) {
+                alert(`File "${file.name}" không phải định dạng ảnh được hỗ trợ.`);
+                return false;
+            }
+
+            if (file.size > maxSize) {
+                alert(`File "${file.name}" vượt quá 5MB.`);
+                return false;
+            }
+
+            return true;
+        });
+
+        if (validFiles.length === 0) return;
+
+        setNewImages([...newImages, ...validFiles]);
+
+        const newPreviewImages = validFiles.map(file => ({
             url: URL.createObjectURL(file),
             name: file.name
         }));
@@ -115,17 +169,33 @@ const AdminEditPost = () => {
 
     // Xóa ảnh mới thêm vào
     const handleDeleteNewImage = (index) => {
-        // Xóa khỏi danh sách ảnh mới
         const updatedNewImages = [...newImages];
         updatedNewImages.splice(index, 1);
         setNewImages(updatedNewImages);
 
-        // Xóa khỏi danh sách preview
         const updatedPreviews = [...previewImages];
-        URL.revokeObjectURL(updatedPreviews[index].url); // Giải phóng memory
+        URL.revokeObjectURL(updatedPreviews[index].url);
         updatedPreviews.splice(index, 1);
         setPreviewImages(updatedPreviews);
     };
+
+    // Cập nhật địa điểm khi người dùng thay đổi lựa chọn
+    const handleLocationChange = (e) => {
+        const selectedLocID = e.target.value;
+        setLocationID(selectedLocID);
+
+        if (selectedLocID) {
+            const selectedLocation = locations.find(loc => loc._id === selectedLocID);
+            if (selectedLocation) {
+                setLocationName(selectedLocation.name);
+            } else {
+                setLocationName("");
+            }
+        } else {
+            setLocationName("");
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -140,17 +210,6 @@ const AdminEditPost = () => {
         formData.append('locationID', locationID);
         formData.append('category', category);
 
-        // Thêm trường dựa trên danh mục
-        if (category === "food") {
-            formData.append("cuisine", cuisine);
-            formData.append("priceRange", priceRange);
-        } else if (category === "event") {
-            formData.append("eventDate", eventDate);
-            if (eventEndDate) {
-                formData.append("eventEndDate", eventEndDate);
-            }
-        }
-
         // Thêm các ảnh mới vào formData
         newImages.forEach(file => {
             formData.append('images', file);
@@ -158,26 +217,34 @@ const AdminEditPost = () => {
 
         // Thêm danh sách ảnh cần xóa
         if (imagesToDelete.length > 0) {
-            formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
+            formData.append('removeImages', JSON.stringify(imagesToDelete));
         }
 
         // Thêm danh sách ảnh hiện tại cần giữ lại
         formData.append('currentImages', JSON.stringify(currentImages));
 
         try {
+            // Thêm cấu hình upload progress
             await axios.put(`http://localhost:5000/api/posts/${postId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percentCompleted);
+                }
             });
+
+            setUploadProgress(100);
             alert("Bài viết đã được cập nhật!");
             navigate("/admin/posts", { state: { updated: true } });
         } catch (error) {
+            setUploadProgress(0);
             console.error("Lỗi khi cập nhật bài viết:", error.response?.data || error.message);
+            alert("Có lỗi xảy ra khi cập nhật bài viết. Vui lòng thử lại.");
         }
     };
 
-    // Xem ảnh phóng to
     const handleViewImage = (images, index) => {
         setSelectedImage(images);
         setCurrentImageIndex(index);
@@ -209,8 +276,6 @@ const AdminEditPost = () => {
                         <option value="story">Câu chuyện</option>
                     </select>
                 </div>
-
-
 
                 <div className="form-group">
                     <label>Nội dung:</label>
@@ -250,17 +315,14 @@ const AdminEditPost = () => {
 
                 <div className="form-group">
                     <label>Thêm hình ảnh mới:</label>
-                    <div className="file-input-container">
+                    <div className="image-upload-container">
                         <input
+                            ref={inputFileRef}
                             type="file"
-                            id="image-upload"
-                            className="file-input"
                             onChange={handleImageChange}
                             multiple
+                            className="image-input-update"
                         />
-                        <label htmlFor="image-upload" className="file-input-label">
-                            <FaPlus /> Chọn ảnh
-                        </label>
                     </div>
 
                     {previewImages.length > 0 && (
@@ -281,7 +343,6 @@ const AdminEditPost = () => {
                                             <FaTrash />
                                         </button>
                                     </div>
-                                    <span className="image-name">{img.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -290,65 +351,37 @@ const AdminEditPost = () => {
 
                 <div className="form-group">
                     <label>Địa điểm:</label>
-                    <select value={locationID} onChange={(e) => setLocationID(e.target.value)} required>
+                    <select
+                        value={locationID}
+                        onChange={handleLocationChange}
+                        required
+                    >
                         <option value="">Chọn địa điểm</option>
                         {locations.map(location => (
-                            <option key={location._id} value={location._id}>{location.name}</option>
+                            <option
+                                key={location._id}
+                                value={location._id.$oid || location._id}
+                            >
+                                {location.name}
+                            </option>
                         ))}
                     </select>
                 </div>
+
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="upload-progress">
+                        <div className="progress-bar">
+                            <div className="progress" style={{ width: `${uploadProgress}%` }}></div>
+                        </div>
+                        <div className="progress-text">{uploadProgress}% đã tải lên</div>
+                    </div>
+                )}
 
                 <div className="button-group">
                     <button type="submit" className="submit-button">Cập nhật bài viết</button>
                     <button type="button" onClick={() => navigate("/admin/posts")} className="cancel-button">Hủy</button>
                 </div>
             </form>
-
-            {/* Modal xem ảnh */}
-            {selectedImage && (
-                <div className="image-modal" onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                        setSelectedImage(null);
-                        setCurrentImageIndex(0);
-                    }
-                }}>
-                    <div className="modal-content">
-                        <img
-                            src={Array.isArray(selectedImage)
-                                ? (typeof selectedImage[currentImageIndex] === 'string' && selectedImage[currentImageIndex].startsWith('http')
-                                    ? selectedImage[currentImageIndex]
-                                    : `http://localhost:5000/uploads/${selectedImage[currentImageIndex].replace(/^.*[\\\/]/, "")}`)
-                                : (typeof selectedImage === 'string' && selectedImage.startsWith('http')
-                                    ? selectedImage
-                                    : `http://localhost:5000/uploads/${selectedImage.replace(/^.*[\\\/]/, "")}`)
-                            }
-                            alt="Hình ảnh phóng to"
-                        />
-                    </div>
-
-                    {Array.isArray(selectedImage) && selectedImage.length > 1 && (
-                        <div className="modal-gallery">
-                            {selectedImage.map((img, index) => (
-                                <img
-                                    key={index}
-                                    src={typeof img === 'string' && img.startsWith('http')
-                                        ? img
-                                        : `http://localhost:5000/uploads/${img.replace(/^.*[\\\/]/, "")}`
-                                    }
-                                    alt={`Thumbnail ${index}`}
-                                    className={`modal-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                />
-                            ))}
-                        </div>
-                    )}
-
-                    <button className="modal-close" onClick={() => {
-                        setSelectedImage(null);
-                        setCurrentImageIndex(0);
-                    }}>×</button>
-                </div>
-            )}
         </div>
     );
 };

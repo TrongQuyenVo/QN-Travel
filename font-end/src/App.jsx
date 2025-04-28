@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "r
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Home from "./pages/Home";
+import ContactPages from "./pages/Contact";
 import Explore from "./pages/Explore";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -67,10 +68,12 @@ function MainLayout({ user, setUser, loading }) {
         {/* Sidebar chỉ hiển thị ở trang admin */}
         {isAdminPage && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />}
 
-        <main className={`flex-grow ${isAdminPage || noHeaderFooter ? '' : 'mt-16'}`}>
+        <main className={`flex-grow ${isAdminPage || noHeaderFooter ? '' : 'mt-16 pb-8'}`}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/contact" element={<ContactPages />} />
+
             <Route path="/posts/:id" element={<PostDetail user={user} />} />
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/register" element={<Register setUser={setUser} />} />
@@ -139,7 +142,11 @@ function MainLayout({ user, setUser, loading }) {
       </div>
 
       {/* Footer & ChatBox chỉ hiển thị khi không ở trang admin hoặc login/register */}
-      {!noHeaderFooter && !isAdminPage && <Footer />}
+      {!noHeaderFooter && !isAdminPage && (
+        <footer className="mt-auto">
+          <Footer />
+        </footer>
+      )}
       {!noHeaderFooter && !isAdminPage && <ChatBox />}
     </div>
   );

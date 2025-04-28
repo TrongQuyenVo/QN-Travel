@@ -13,7 +13,7 @@ const Navbar = ({ user, setUser }) => {
     return (
         <nav className="navbar">
             <div className="container mx-auto max-w-screen-xl flex justify-between items-center">
-                <Link to="/" className="text-2xl font-bold hover:text-gray-200">QuangNamTourism</Link>
+                <Link to="/" className="text-2xl font-bold hover:text-gray-200">QuangNamTravel</Link>
                 <div className="flex-1 flex justify-center">
                     <div className="space-x-12">
                         <Link to="/" className="text-xl hover:text-gray-200">Trang chủ</Link>

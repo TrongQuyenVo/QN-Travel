@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaCalendarAlt, FaSyncAlt, FaUtensils, FaCalendarDay, FaNewspaper, } from "react-icons/fa";
+import { FaCalendarAlt, FaSyncAlt, FaUtensils, FaCalendarDay, FaNewspaper, FaEdit } from "react-icons/fa";
 import { BiBookOpen } from "react-icons/bi";
 import "../styles/AdminPost.css";
 
@@ -9,7 +9,6 @@ const AdminPosts = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [activeCategory, setActiveCategory] = useState("all");
     const navigate = useNavigate();
 
@@ -71,6 +70,11 @@ const AdminPosts = () => {
         );
     };
 
+    // Helper function to check if a post has been updated
+    const isPostUpdated = (post) => {
+        return post.updatedAt && post.createdAt && new Date(post.updatedAt).getTime() > new Date(post.createdAt).getTime();
+    };
+
     if (loading) {
         return <div className="loading-container">Đang tải dữ liệu...</div>;
     }
@@ -96,7 +100,8 @@ const AdminPosts = () => {
                     <div className="no-posts-message">Không có bài viết nào trong danh mục này.</div>
                 ) : (
                     displayPosts.map(post => {
-                        const updatedAt = new Date(post.updatedAt || post.createdAt).toLocaleString("vi-VN");
+                        const displayDate = new Date(post.updatedAt || post.createdAt).toLocaleString("vi-VN");
+                        const hasBeenUpdated = isPostUpdated(post);
 
                         let categoryInfo = "";
                         let categoryIcon = null;
@@ -142,7 +147,12 @@ const AdminPosts = () => {
 
                                 <div className="post-card-date">
                                     <p className="post-date">
-                                        <FaCalendarAlt className="date-icon" /> {updatedAt}
+                                        <FaCalendarAlt className="date-icon" /> {displayDate}
+                                        {hasBeenUpdated && (
+                                            <span className="updated-indicator flex">
+                                                <FaEdit className="update-icon" title="Đã cập nhật" /> Đã cập nhật
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
 
@@ -155,41 +165,6 @@ const AdminPosts = () => {
                     })
                 )}
             </div>
-
-            {selectedImage && (
-                <div className="image-modal" onClick={(e) => {
-                    if (e.target === e.currentTarget) {
-                        setSelectedImage(null);
-                        setCurrentImageIndex(0);
-                    }
-                }}>
-                    <div className="modal-content">
-                        <img
-                            src={getImageUrl(Array.isArray(selectedImage) ? selectedImage[currentImageIndex] : selectedImage)}
-                            alt="Hình ảnh phóng to"
-                        />
-                    </div>
-
-                    {Array.isArray(selectedImage) && selectedImage.length > 1 && (
-                        <div className="modal-gallery">
-                            {selectedImage.map((img, index) => (
-                                <img
-                                    key={index}
-                                    src={getImageUrl(img)}
-                                    alt={`Thumbnail ${index}`}
-                                    className={`modal-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                />
-                            ))}
-                        </div>
-                    )}
-
-                    <button className="modal-close" onClick={() => {
-                        setSelectedImage(null);
-                        setCurrentImageIndex(0);
-                    }}>×</button>
-                </div>
-            )}
         </div>
     );
 };

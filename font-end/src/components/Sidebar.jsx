@@ -56,7 +56,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <span>Quản lý bài viết</span>
                 </button>
 
-                <button
+                {/* <button
                     className={`nav-item ${activeTab === "users" ? "active" : ""}`}
                     onClick={() => {
                         updateActiveTab("users");
@@ -65,7 +65,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 >
                     <Users size={20} />
                     <span>Quản lý người dùng</span>
-                </button>
+                </button> */}
 
                 <button
                     className={`nav-item ${activeTab === "comments" ? "active" : ""}`}
@@ -88,20 +88,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                     <Map size={20} />
                     <span>Địa điểm du lịch</span>
                 </button>
-
-
-                <button
-                    className={`nav-item ${activeTab === "reviews" ? "active" : ""}`}
-                    onClick={() => {
-                        updateActiveTab("reviews");
-                        navigate("/admin/reviews");
-                    }}
-                >
-                    <ThumbsUp size={20} />
-                    <span>Đánh giá & xếp hạng</span>
-                </button>
-
-
             </nav>
 
             <div className="sidebar-footer">
