@@ -17,8 +17,6 @@ const AdminEditPost = () => {
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState("general");
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [selectedImage, setSelectedImage] = useState(null); // Thêm state cho hình ảnh được chọn
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // Thêm state cho index hình ảnh
 
     // Thêm useRef cho input file
     const inputFileRef = useRef(null);
@@ -293,7 +291,6 @@ const AdminEditPost = () => {
                                             <img
                                                 src={`http://localhost:5000/uploads/${img.replace(/^.*[\\\/]/, "")}`}
                                                 alt={`Hình ảnh ${idx + 1}`}
-                                                onClick={() => handleViewImage(currentImages, idx)}
                                                 onError={(e) => { e.target.src = "/placeholder-image.jpg"; }}
                                             />
                                             <button
@@ -333,7 +330,6 @@ const AdminEditPost = () => {
                                         <img
                                             src={img.url}
                                             alt={`Ảnh mới ${idx + 1}`}
-                                            onClick={() => handleViewImage(previewImages.map(p => p.url), idx)}
                                         />
                                         <button
                                             type="button"
